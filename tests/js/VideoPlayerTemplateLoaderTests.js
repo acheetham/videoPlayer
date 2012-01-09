@@ -31,18 +31,25 @@ fluid.registerNamespace("fluid.tests");
             resources: {
                 resource1: {
                     fetchClass: "testFetchClass",
-                    href: "../../html/videoPlayer_template.html"
+                    href: "../../html/videoPlayer_template.html",
+                    options: {
+                        // TODO: find out why this is necessary!!!
+                        async: false
+                    }
                 }
             },
             events: {
                 afterFetch: null
             },
-            postInitFunction: "fluid.tests.testComponent.postInit"
+            listeners: {
+                afterFetch: "{fluid.tests.testComponent}.afterFetchHandler"
+            },
+            preInitFunction: "fluid.tests.testComponent.preInit"
         });
-        fluid.tests.testComponent.postInit = function (that) {
-            that.events.afterFetch.addListener(function () {
-                that.options.fetchListener(that)
-            });
+        fluid.tests.testComponent.preInit = function (that) {
+            that.afterFetchHandler = function () {
+                that.options.fetchTester(that)
+            };
         };
         fluid.demands("fluid.videoPlayer.templateLoader", "fluid.tests.testComponent", {
             options: {
@@ -60,19 +67,20 @@ fluid.registerNamespace("fluid.tests");
         var videoPlayerTemplateLoaderTests = new jqUnit.TestCase("Video Player Template Loader Tests");
 
         videoPlayerTemplateLoaderTests.asyncTest("Template Loader: valid path", function () {
-            expect(2);
+            expect(3);
             fluid.fetchResources.primeCacheFromResources("fluid.tests.testComponent");
             var loader= fluid.tests.initTestComponent({
-                fetchListener: function (that) {
+                fetchTester: function (that) {
                     jqUnit.assertTrue("Video player's afterFetch event should fire", true);
                     jqUnit.assertFalse("There should not have been an error loading the template", that.options.resources.resource1.fetchError);
+                    jqUnit.assertTrue("The resource should have text", that.options.resources.resource1.resourceText);
                     start();
                 }
             });
         });
 
         videoPlayerTemplateLoaderTests.asyncTest("Template Loader: invalid path", function () {
-            expect(3);
+            expect(2);
             fluid.fetchResources.primeCacheFromResources("fluid.tests.testComponent");
             var loader= fluid.tests.initTestComponent({
                 resources: {
@@ -80,10 +88,9 @@ fluid.registerNamespace("fluid.tests");
                         href: "bad/template/path.html"
                     }
                 },
-                fetchListener: function (that) {
+                fetchTester: function (that) {
                     jqUnit.assertTrue("Video player's afterFetch event should fire", true);
                     jqUnit.assertTrue("There should have been an error loading the template", that.options.resources.resource1.fetchError);
-                    jqUnit.assertTrue("The resource should have text", that.options.resources.resource1.resourceText);
                     start();
                 }
             });
