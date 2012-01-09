@@ -424,6 +424,14 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             amalgamateClasses: that.options.amalgamateClasses
         });
     };
+    fluid.demands("fluid.videoPlayer.templateLoader", "fluid.videoPlayer", {
+        options: {
+           amalgamateClasses: ["testFetchClass"],
+           events: {
+                afterFetch: "{videoPlayer}.events.afterFetch"
+            }
+        }
+    });
 
     fluid.fetchResources.primeCacheFromResources("fluid.videoPlayer");
 

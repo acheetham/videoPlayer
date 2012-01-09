@@ -25,12 +25,7 @@ fluid.registerNamespace("fluid.tests");
             gradeNames: ["fluid.rendererComponent", "autoInit"],
             components: {
                 templateLoader: {
-                    type: "fluid.videoPlayer.templateLoader",
-                    options: {
-                        events: {
-                            afterFetch: "{testComponent}.events.readyToTest"
-                        }
-                    }
+                    type: "fluid.videoPlayer.templateLoader"
                 }
             },
             resources: {
@@ -41,32 +36,54 @@ fluid.registerNamespace("fluid.tests");
             },
             events: {
                 afterFetch: null
-            }
+            },
+            postInitFunction: "fluid.tests.testComponent.postInit"
         });
+        fluid.tests.testComponent.postInit = function (that) {
+            that.events.afterFetch.addListener(function () {
+                that.options.fetchListener(that)
+            });
+        };
         fluid.demands("fluid.videoPlayer.templateLoader", "fluid.tests.testComponent", {
             options: {
                amalgamateClasses: ["testFetchClass"],
+               events: {
+                    afterFetch: "{testComponent}.events.afterFetch"
+                }
             }
         });
 
         fluid.tests.initTestComponent = function (testOptions) {
-            var opts = fluid.copy(fluid.tests.baseOpts);
-            $.extend(true, opts, testOptions);
-            return fluid.tests.testComponent("#main", opts);
+            return fluid.tests.testComponent("#main", testOptions);
         };
 
         var videoPlayerTemplateLoaderTests = new jqUnit.TestCase("Video Player Template Loader Tests");
 
-        videoPlayerTemplateLoaderTests.asyncTest("Template Loader loads template", function () {
+        videoPlayerTemplateLoaderTests.asyncTest("Template Loader: valid path", function () {
             expect(2);
             fluid.fetchResources.primeCacheFromResources("fluid.tests.testComponent");
-            var loader = fluid.tests.initTestComponent({
-                listeners: {
-                    afterFetch: function () {
-                        jqUnit.assertTrue("The video player should render", true);
-                        jqUnit.assertEquals("There should be exactly one <video> element", 1, $("video").length);
-                        start();
+            var loader= fluid.tests.initTestComponent({
+                fetchListener: function (that) {
+                    jqUnit.assertTrue("Video player's afterFetch event should fire", true);
+                    jqUnit.assertFalse("There should not have been an error loading the template", that.options.resources.resource1.fetchError);
+                    start();
+                }
+            });
+        });
+
+        videoPlayerTemplateLoaderTests.asyncTest("Template Loader: invalid path", function () {
+            expect(2);
+            fluid.fetchResources.primeCacheFromResources("fluid.tests.testComponent");
+            var loader= fluid.tests.initTestComponent({
+                resources: {
+                    resource1: {
+                        href: "bad/template/path.html"
                     }
+                },
+                fetchListener: function (that) {
+                    jqUnit.assertTrue("Video player's afterFetch event should fire", true);
+                    jqUnit.assertTrue("There should have been an error loading the template", that.options.resources.resource1.fetchError);
+                    start();
                 }
             });
         });
