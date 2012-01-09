@@ -19,13 +19,15 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 (function ($) {
     $(document).ready(function () {
 
-        var templatePath = "../../html/";
-
         var videoPlayerTests = new jqUnit.TestCase("Video Player Tests");
 
         var initVideoPlayer = function (testOptions) {
             var opts = {
-                templatePath: templatePath,
+                templates: {
+                    videoPlayer: {
+                        href: "../../html/videoPlayer_template.html"
+                    }
+                },
                 model: {
                     video: {
                         sources: [
@@ -41,6 +43,20 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             return fluid.videoPlayer(".videoPlayer", opts);
         };
 
+        videoPlayerTests.asyncTest("Video Player successfully renders", function () {
+            expect(2);
+            var vidPlayer = initVideoPlayer({
+                listeners: {
+                    afterRender: function () {
+                        jqUnit.assertTrue("The video player should render", true);
+                        jqUnit.assertEquals("There should be exactly one <video> element", 1, $("video").length);
+                        start();
+                    }
+                }
+            });
+        });
+
+/*
         videoPlayerTests.asyncTest("Configurable template path (FLUID-4572): valid path", function () {
             expect(1);
             var vidPlayer = initVideoPlayer({
@@ -74,5 +90,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 }
             });
         });
+*/
     });
 })(jQuery);

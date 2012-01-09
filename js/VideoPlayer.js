@@ -18,7 +18,7 @@ https://source.fluidproject.org/svn/LICENSE.txt
 
 
 (function ($) {
-    fluid.setLogging(false);
+    fluid.setLogging(true);
 
     var bindKeyboardControl = function (that) {
         var opts = {
@@ -131,6 +131,7 @@ https://source.fluidproject.org/svn/LICENSE.txt
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         preInitFunction: "fluid.videoPlayer.preInit",
         finalInitFunction: "fluid.videoPlayer.finalInit",
+        renderOnInit: true,
         events: {
             onReadyToLoadCaptions: null,
             onCaptionsLoaded: null,
@@ -194,9 +195,12 @@ https://source.fluidproject.org/svn/LICENSE.txt
                 track: undefined
             }
         },
-        templatePath: "../html/",
-        templates: {
-            videoPlayer: "videoPlayer_template.html"
+        resources: {
+            videoPlayer: {
+                fetchClass: "videoPlayerTemplates",
+                forceCache: true,
+                href: "../html/videoPlayer_template.html"
+            }
         }
     });
 
@@ -309,48 +313,17 @@ https://source.fluidproject.org/svn/LICENSE.txt
 
     };
     
-    var buildResourceSpec = function (templates, path) {
-        return fluid.transform(templates, function (object, index) {
-            return {
-                forceCache: true,
-                href: path + object
-            }
-        });
-    };
-
     fluid.videoPlayer.finalInit = function (that) {
         that.applier = fluid.makeChangeApplier(that.model);
         // Render each media source with its custom renderer, registered by type.
         // If we aren't on an HTML 5 video-enabled browser, don't bother setting up the controller or captions.
 
-        fluid.fetchResources(buildResourceSpec(that.options.templates, that.options.templatePath), function (res) {
-            var fetchFailed = false;
-            for (var key in res) {
-                if (res[key].fetchError) {
-                    fluid.log("couldn't fetch" + res[key].href);
-                    fluid.log("status: " + res[key].fetchError.status +
-                        ", textStatus: " + res[key].fetchError.textStatus +
-                        ", errorThrown: " + res[key].fetchError.errorThrown);
-                    that.events.onTemplateLoadError.fire(res[key].href);
-                    fetchFailed = true;
-                } else if (key === "videoPlayer") {
-                    if ($.browser.msie && $.browser.version < 9) {
-                        that.events.onOldBrowserDetected.fire($.browser);
-                    }
-                    that.container.append(res[key].resourceText);
-                    that.refreshView();
-                    //if we're on an old browser there's no point in linking all the evets as they won't exist...
-                    if (!($.browser.msie && $.browser.version < 9)) {
-                        bindVideoPlayerDOMEvents(that);
-                        //create all the listeners to the model
-                        bindVideoPlayerModel(that);
-                    }
-                }
-            }
-            if (!fetchFailed) {
-                that.events.onTemplateReady.fire();
-            }
-        });
+        //if we're on an old browser there's no point in linking all the evets as they won't exist...
+        if (!($.browser.msie && $.browser.version < 9)) {
+            bindVideoPlayerDOMEvents(that);
+            //create all the listeners to the model
+            bindVideoPlayerModel(that);
+        }
 
         return that;
     };
@@ -431,4 +404,27 @@ https://source.fluidproject.org/svn/LICENSE.txt
             }
         }
     });
+
+    /************************************************
+     *  VideoPlayer Template Loader subcomponent    *
+     ************************************************/   
+    fluid.defaults("fluid.videoPlayer.templateLoader", {
+        gradeNames: ["fluid.eventedComponent", "autoInit"],
+        events: {
+            afterFetch: null
+        },
+        amalgamateClasses: ["videoPlayerTemplates"],
+        finalInitFunction: "fluid.videoPlayer.templateLoader.finalInit"
+    });
+    
+    fluid.videoPlayer.templateLoader.finalInit = function (that) {
+        fluid.fetchResources ({}, function (resourceSpecs) {
+            that.events.afterFetch.fire();
+        }, {
+            amalgamateClasses: that.options.amalgamateClasses
+        });
+    };
+
+    fluid.fetchResources.primeCacheFromResources("fluid.videoPlayer");
+
 })(jQuery);
