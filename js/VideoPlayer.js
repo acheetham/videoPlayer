@@ -130,9 +130,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.defaults("fluid.videoPlayer", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         preInitFunction: "fluid.videoPlayer.preInit",
-        finalInitFunction: "fluid.videoPlayer.finalInit",
-        renderOnInit: true,
+        postInitFunction: "fluid.videoPlayer.postInit",
+        renderOnInit: false,
         events: {
+            afterFetch: null,
             onReadyToLoadCaptions: null,
             onCaptionsLoaded: null,
             onVolumeChange: null,
@@ -151,6 +152,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             onViewReady: "{videoPlayer}.refresh"
         },
         components: {
+            templateLoader: {
+                type: "fluid.videoPlayer.templateLoader"
+            },
             captionLoader: {
                 type: "fluid.videoPlayer.captionLoader",
                 container: "{videoPlayer}.container",
@@ -313,7 +317,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
     };
     
-    fluid.videoPlayer.finalInit = function (that) {
+    fluid.videoPlayer.postInit = function (that) {
         that.applier = fluid.makeChangeApplier(that.model);
         // Render each media source with its custom renderer, registered by type.
         // If we aren't on an HTML 5 video-enabled browser, don't bother setting up the controller or captions.
@@ -325,6 +329,35 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             bindVideoPlayerModel(that);
         }
 
+        that.events.afterFetch.addListener(function () {
+            var fetchFailed = false;
+            for (var key in that.options.resources) {
+                var res = that.options.resources[key]
+                if (res.fetchError) {
+                    fluid.log("couldn't fetch" + res.href);
+                    fluid.log("status: " + res.fetchError.status +
+                        ", textStatus: " + res.fetchError.textStatus +
+                        ", errorThrown: " + res.fetchError.errorThrown);
+                    that.events.onTemplateLoadError.fire(res.href);
+                    fetchFailed = true;
+                } else if (key === "videoPlayer") {
+                    if ($.browser.msie && $.browser.version < 9) {
+                        that.events.onOldBrowserDetected.fire($.browser);
+                    }
+                    that.container.append(res.resourceText);
+                    that.refreshView();
+                    //if we're on an old browser there's no point in linking all the evets as they won't exist...
+                    if (!($.browser.msie && $.browser.version < 9)) {
+                        bindVideoPlayerDOMEvents(that);
+                        //create all the listeners to the model
+                        bindVideoPlayerModel(that);
+                    }
+                }
+            }
+            if (!fetchFailed) {
+                that.events.onTemplateReady.fire();
+            }
+        });
         return that;
     };
         
@@ -426,7 +459,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     };
     fluid.demands("fluid.videoPlayer.templateLoader", "fluid.videoPlayer", {
         options: {
-           amalgamateClasses: ["testFetchClass"],
            events: {
                 afterFetch: "{videoPlayer}.events.afterFetch"
             }

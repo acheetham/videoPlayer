@@ -72,7 +72,7 @@ fluid.registerNamespace("fluid.tests");
         });
 
         videoPlayerTemplateLoaderTests.asyncTest("Template Loader: invalid path", function () {
-            expect(2);
+            expect(3);
             fluid.fetchResources.primeCacheFromResources("fluid.tests.testComponent");
             var loader= fluid.tests.initTestComponent({
                 resources: {
@@ -83,6 +83,7 @@ fluid.registerNamespace("fluid.tests");
                 fetchListener: function (that) {
                     jqUnit.assertTrue("Video player's afterFetch event should fire", true);
                     jqUnit.assertTrue("There should have been an error loading the template", that.options.resources.resource1.fetchError);
+                    jqUnit.assertTrue("The resource should have text", that.options.resources.resource1.resourceText);
                     start();
                 }
             });
