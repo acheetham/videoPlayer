@@ -59,6 +59,7 @@ fluid.staticEnvironment.vidPlayerTests2 = fluid.typeTag("fluid.videoPlayerTests2
 
         var videoPlayerControlsTests = new jqUnit.TestCase("Video Player Controls Tests");
 
+/*
         var baseToggleButtonOpts = {
             selectors: {
                 button: ".test-toggle-button"
@@ -448,6 +449,36 @@ fluid.staticEnvironment.vidPlayerTests2 = fluid.typeTag("fluid.videoPlayerTests2
                         jqUnit.assertEquals("Tooltip should contain 'Full screen' again", "Full screen", tooltip.text());
                         jqUnit.assertFalse("Video should not be in full screen mode", that.model.fullscreen);
 
+                        start();
+                    }
+                }
+            });
+        });
+*/
+        var baseCustomControlsOptions = {
+            templates: {
+                controls: {
+                    // override the default template path
+                    // TODO: We need to refactor the VideoPlayer to better support
+                    //       overriding the path without needing to know file names
+                    href: "../../html/videoPlayer_controls_template.html"
+                }
+            }
+        };
+
+        fluid.tests.initCustomControls = function (testOpts) {
+            var opts = fluid.copy(baseCustomControlsOptions);
+            $.extend(true, opts, testOpts);
+            return fluid.videoPlayer.controllers("#customControlsContainer", opts);
+        };
+
+        videoPlayerControlsTests.asyncTest("Custom controller", function () {
+            expect(1);
+            var testControls = fluid.tests.initCustomControls({
+                listeners: {
+                    onControllersReady: function (controls) {
+console.log("testing");
+                        jqUnit.assertEquals("Custom controls include a Play button", 1, $(controls.options.selectors.play, controls.container).length);
                         start();
                     }
                 }

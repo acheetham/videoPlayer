@@ -66,6 +66,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             scrubber: {
                 type: "fluid.videoPlayer.controllers.scrubber",
                 container: "{controllers}.dom.scrubberContainer",
+                createOnEvent: "onTemplateReady",
                 options: {
                     model: "{controllers}.model",
                     applier: "{controllers}.applier",
@@ -79,6 +80,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             volumeControl: {
                 type: "fluid.videoPlayer.controllers.volumeControls",
                 container: "{controllers}.dom.volumeContainer",
+                createOnEvent: "onTemplateReady",
                 options: {
                     model: "{controllers}.model",
                     applier: "{controllers}.applier",
@@ -90,6 +92,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             captionControls: {
                 type: "fluid.videoPlayer.controllers.captionControls",
                 container: "{controllers}.dom.captionControlsContainer",
+                createOnEvent: "onTemplateReady",
                 options: {
                     model: "{controllers}.model",
                     applier: "{controllers}.applier"
@@ -98,6 +101,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             playButton: {
                 type: "fluid.videoPlayer.controllers.toggleButton",
                 container: "{controllers}.container",
+                createOnEvent: "onTemplateReady",
                 options: {
                     selectors: {
                         button: ".flc-videoPlayer-play"
@@ -115,6 +119,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fullScreenButton: {
                 type: "fluid.videoPlayer.controllers.toggleButton",
                 container: "{controllers}.container",
+                createOnEvent: "onTemplateReady",
                 options: {
                     selectors: {
                         button: ".flc-videoPlayer-fullscreen"
@@ -134,6 +139,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         },
         finalInitFunction: "fluid.videoPlayer.controllers.finalInit",
         events: {
+            onTemplateReady: null,
             onControllersReady: null,
             onVolumeChange: null,
             onStartTimeChange: null,
@@ -154,12 +160,24 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fullscreenOff: "fl-videoPlayer-state-fullscreenOff",
             fullscreenIcon: "ui-icon-extlink",
             captionIcon: "ui-icon-comment"
+        },
+        templates: {
+            controls: {
+                forceCache: true,
+                href: "../html/videoPlayer_controls_template.html"
+            }
         }
     });
 
     fluid.videoPlayer.controllers.finalInit = function (that) {
-        bindControllerModel(that);
-        bindControllerDOMEvents(that);
+console.log("trying to bind controller model");
+        fluid.fetchResources(that.options.templates, function (resourceSpecs) {
+console.log("fetch callback");
+            that.container.append(resourceSpecs.controls.resourceText);
+            that.events.onTemplateReady.fire();
+        });
+        // bindControllerModel(that);
+        // bindControllerDOMEvents(that);
 
         that.events.onControllersReady.fire(that);
     };
@@ -294,6 +312,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         bindScrubberDOMEvents(that);
         bindScrubberModel(that);
 
+console.log("scrubber firing ready");
         that.events.onScrubberReady.fire();
     };
 
@@ -454,6 +473,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         setUpVolumeControls(that);
         bindVolumeDOMEvents(that);
         bindVolumeModel(that);
+console.log("volumeControls firing ready");
         that.events.onReady.fire(that);
     };
 
@@ -585,6 +605,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         setUpCaptionControls(that);
         bindCaptionDOMEvents(that);
         bindCaptionModel(that);
+console.log("captionControls firing ready");
         that.events.onReady.fire(that);
     };
 
@@ -700,6 +721,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.videoPlayer.controllers.toggleButton.finalInit = function (that) {
         setUpToggleButton(that);
         bindToggleButtonEvents(that);
+console.log("toggleButton firing ready");
         that.events.onReady.fire(that);
     };
  
