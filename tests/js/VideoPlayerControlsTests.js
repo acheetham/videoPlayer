@@ -444,7 +444,6 @@ fluid.staticEnvironment.vidPlayerTests2 = fluid.typeTag("fluid.videoPlayerTests2
             var testControls = fluid.tests.initCustomControls({
                 listeners: {
                     onControllersReady: function (controls) {
-console.log("testing");
                         jqUnit.assertEquals("Custom controls include a Play button", 1, $(controls.options.selectors.play, controls.container).length);
                         start();
                     }

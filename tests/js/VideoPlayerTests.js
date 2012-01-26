@@ -40,6 +40,17 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         //       overriding the path without needing to know file names
                         href: "../../html/videoPlayer_template.html"
                     }
+                },
+                components: {
+                    controllers: {
+                        options: {
+                            templates: {
+                                controls: {
+                                    href: "../../html/videoPlayer_controls_template.html"
+                                }
+                            }
+                        }
+                    }
                 }
             };
             $.extend(true, opts, testOptions);

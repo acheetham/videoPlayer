@@ -168,16 +168,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     });
 
     fluid.videoPlayer.controllers.finalInit = function (that) {
-console.log("trying to bind controller model");
         fluid.fetchResources(that.options.templates, function (resourceSpecs) {
-console.log("fetch callback");
-            that.container.append(resourceSpecs.controls.resourceText);
-            that.events.onTemplateReady.fire();
+            if (!resourceSpecs.controls.fetchError) {
+                that.container.append(resourceSpecs.controls.resourceText);
+                that.events.onTemplateReady.fire();
+                bindControllerModel(that);
+                bindControllerDOMEvents(that);
+                that.events.onControllersReady.fire(that);
+            } else {
+                console.log("fetch failed");                
+            }
         });
-        // bindControllerModel(that);
-        // bindControllerDOMEvents(that);
 
-        that.events.onControllersReady.fire(that);
     };
     
     /********************************************
@@ -310,8 +312,6 @@ console.log("fetch callback");
         createScrubberMarkup(that);
         bindScrubberDOMEvents(that);
         bindScrubberModel(that);
-
-console.log("scrubber firing ready");
         that.events.onScrubberReady.fire();
     };
 
@@ -465,7 +465,6 @@ console.log("scrubber firing ready");
         setUpVolumeControls(that);
         bindVolumeDOMEvents(that);
         bindVolumeModel(that);
-console.log("volumeControls firing ready");
         that.events.onReady.fire(that);
     };
 
@@ -578,7 +577,6 @@ console.log("volumeControls firing ready");
         setUpCaptionControls(that);
         bindCaptionDOMEvents(that);
         bindCaptionModel(that);
-console.log("captionControls firing ready");
         that.events.onReady.fire(that);
     };
 
@@ -680,7 +678,6 @@ console.log("captionControls firing ready");
     fluid.videoPlayer.controllers.toggleButton.finalInit = function (that) {
         setUpToggleButton(that);
         bindToggleButtonEvents(that);
-console.log("toggleButton firing ready");
         that.events.onReady.fire(that);
     };
  
