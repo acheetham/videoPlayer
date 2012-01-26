@@ -126,9 +126,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     },
                     styles: {
                         pressed: "fl-videoPlayer-fullscreen-on",
-                        released: "fl-videoPlayer-fullscreen-off",
-                        focused: "fl-videoPlayer-fullscreen-hover",
-                        notFocused: "fl-videoPlayer-fullscreen-notfocused"
+                        released: "fl-videoPlayer-fullscreen-off"
                     },
                     strings: {
                         press: "Full screen",
@@ -210,10 +208,14 @@ console.log("fetch callback");
     };
 
     var bindScrubberModel = function (that) {
+        that.applier.modelChanged.addListener("states.currentTime", that.updateCurrentTime);
+        that.applier.modelChanged.addListener("states.totalTime", that.updateTotalTime);
+
         // Setup the scrubber when we know the duration of the video.
         that.applier.modelChanged.addListener("states.startTime", that.updateMin);
         that.applier.modelChanged.addListener("states.startTime", that.updateMax);
         that.applier.modelChanged.addListener("states.totalTime", that.updateMax);
+
         // Bind to the video's timeupdate event so we can programmatically update the slider.
         that.applier.modelChanged.addListener("states.currentTime", that.updateCurrent);
 
@@ -247,7 +249,7 @@ console.log("fetch callback");
     };
 
     fluid.defaults("fluid.videoPlayer.controllers.scrubber", {
-        gradeNames: ["fluid.rendererComponent", "autoInit"],
+        gradeNames: ["fluid.viewComponent", "autoInit"],
         finalInitFunction: "fluid.videoPlayer.controllers.scrubber.finalInit",
         postInitFunction: "fluid.videoPlayer.controllers.scrubber.postInit",
         events: {
@@ -263,21 +265,18 @@ console.log("fetch callback");
         },
         strings: {
             scrubber: "Time scrub"
-        },
-        produceTree: "fluid.videoPlayer.controllers.scrubber.produceTree"
+        }
     });
 
-    fluid.videoPlayer.controllers.scrubber.produceTree = function (that) {
-        var tree = {
-            currentTime: "${states.currentTime}",
-            totalTime: "${states.totalTime}",
-            scrubber: {}
-        };
-        
-        return tree;
-    };
-
     fluid.videoPlayer.controllers.scrubber.postInit = function (that) {
+        that.updateCurrentTime = function () {
+            that.locate("currentTime").text(that.model.states.currentTime);
+        };
+
+        that.updateTotalTime = function () {
+            that.locate("totalTime").text(that.model.states.totalTime);
+        };
+
         that.updateMin = function () {
             var startTime = that.model.states.startTime || 0;
             var scrubber = that.locate("scrubber");
@@ -392,11 +391,9 @@ console.log("scrubber firing ready");
     };
 
     fluid.defaults("fluid.videoPlayer.controllers.volumeControls", {
-        gradeNames: ["fluid.rendererComponent", "autoInit"],
-        renderOnInit: true,
+        gradeNames: ["fluid.viewComponent", "autoInit"],
         postInitFunction: "fluid.videoPlayer.controllers.volumeControls.postInit",
         finalInitFunction: "fluid.videoPlayer.controllers.volumeControls.finalInit",
-        produceTree: "fluid.videoPlayer.controllers.volumeControls.produceTree",
         events: {
             onReady: null,
             onChange: null
@@ -431,16 +428,13 @@ console.log("scrubber firing ready");
                         button: ".flc-videoPlayer-mute"
                     },
                     styles: {
-                        pressed: "fl-videoPlayer-volume-muted",
-                        released: "",
-                        focused: "fl-videoPlayer-volume-active",
-                        notFocused: ""
+                        pressed: "fl-videoPlayer-muted",
+                        released: ""
                     },
                     strings: {
                         press: "Mute",
                         release: "Un-mute"
-                    },
-                    manageFocusStyling: false
+                    }
                 }
             }
         }
@@ -450,11 +444,9 @@ console.log("scrubber firing ready");
         that.options.components.muteButton.container = that.container;
         
         that.showVolumeControl = function () {
-            that.muteButton.setStyleFocused();
             that.locate("volumeControl").show();
         };
         that.hideVolumeControl = function () {
-            that.muteButton.setStyleNotFocused();
             that.locate("volumeControl").hide();
         };
 
@@ -463,8 +455,8 @@ console.log("scrubber firing ready");
             var volumeControl = that.locate("volumeControl");
             volumeControl.slider("value", volume);
             volumeControl.find(".ui-slider-handle").attr({
-                "aria-valuenow": that.model.states.volume,
-                "aria-valuetext": Math.round(that.model.states.volume) + "%"
+                "aria-valuenow": volume,
+                "aria-valuetext": Math.round(volume) + "%"
             });
         };
     };
@@ -475,22 +467,6 @@ console.log("scrubber firing ready");
         bindVolumeModel(that);
 console.log("volumeControls firing ready");
         that.events.onReady.fire(that);
-    };
-
-    fluid.videoPlayer.controllers.volumeControls.produceTree = function (that) {
-        return {
-            // TODO: Note that until FLUID-4573 is fixed, these bindings don't actually do anything
-            mute: {
-                value: "${muted}",
-                decorators: [{
-                    type: "addClass",
-                    classes: (that.model.pressed ? that.options.styles.pressed : that.options.styles.released)
-                }]
-            },
-            volumeControl: {
-                value: "${value}"
-            }
-        };
     };
 
 
@@ -550,15 +526,12 @@ console.log("volumeControls firing ready");
                     },
                     styles: {
                         pressed: "fl-videoPlayer-caption-active",
-                        released: "",
-                        focused: "",
-                        notFocused: ""
+                        released: ""
                     },
                     strings: {
                         press: "Captions",
                         release: "Captions"
-                    },
-                    manageFocusStyling: false
+                    }
                 }
             }
         }
@@ -647,9 +620,7 @@ console.log("captionControls firing ready");
         },
         styles: {   // Integrators will likely override these styles
             pressed: "fl-videoPlayer-button-pressed",
-            released: "fl-videoPlayer-button-released",
-            focused: "fl-videoPlayer-button-focused",
-            notFocused: "fl-videoPlayer-button-notfocused"
+            released: "fl-videoPlayer-button-released"
         },
         model: {
             pressed: false
@@ -657,8 +628,7 @@ console.log("captionControls firing ready");
         strings: {  // Integrators will likely override these strings
             press: "Press",
             release: "Release"
-        },
-        manageFocusStyling: true
+        }
     });
 
     fluid.videoPlayer.controllers.toggleButton.postInit = function (that) {
@@ -669,12 +639,6 @@ console.log("captionControls firing ready");
             var button = that.locate("button");
             button.toggleClass(that.options.styles.pressed + " " + that.options.styles.released);
             button.attr("aria-pressed", that.model.pressed);
-        };
-        that.setStyleFocused = function (evt) {
-            that.locate("button").addClass(that.options.styles.focused).removeClass(that.options.styles.notFocused);
-        };
-        that.setStyleNotFocused = function (evt) {
-            that.locate("button").addClass(that.options.styles.notFocused).removeClass(that.options.styles.focused);
         };
         that.toggleState = function (evt) {
             that.applier.requestChange("pressed", !that.model.pressed);
@@ -689,7 +653,6 @@ console.log("captionControls firing ready");
         var toggleButton = that.locate("button");
         toggleButton.attr("role", "button").attr("aria-pressed", "false");
         toggleButton.addClass(that.model.pressed ? that.options.styles.pressed : that.options.styles.released);
-        toggleButton.addClass(that.options.styles.notFocused);
 
         that.tooltip = fluid.tooltip(toggleButton, {
             styles: {
@@ -703,10 +666,6 @@ console.log("captionControls firing ready");
 
     var bindToggleButtonEvents = function (that) {
         var button = that.locate("button");
-        if (that.options.manageFocusStyling) {
-            button.focus(that.setStyleFocused).blur(that.setStyleNotFocused);
-            button.mouseover(that.setStyleFocused).mouseout(that.setStyleNotFocused);
-        }
         button.click(function (evt) {
             that.activate(evt);
         });
