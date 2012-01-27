@@ -19,14 +19,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
 (function ($) {
 
-    var enableElement = function (jQel, enable) {
-        if (enable) {
-            jQel.removeAttr("disabled");
-        } else {
-            jQel.attr("disabled", "disabled");
-        }
-    };
-
     /**
      * controllers is a video controller containing a play button, a time scrubber, 
      *      a volume controller, a button to put captions on/off
@@ -37,29 +29,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     //add all the modelChanged listener to the applier
     var bindControllerModel = function (that) {
         that.applier.modelChanged.addListener("states.canPlay", function () {
-            enableElement(that.locate("play"), that.model.states.canPlay);
-            enableElement(that.locate("fullscreen"), that.model.states.canPlay);
-        });
+            that.locate("play").attr("disabled", !that.model.states.canPlay);
+            that.locate("fullscreen").attr("disabled", !that.model.states.canPlay);
+       });
     };
 
-    var bindControllerDOMEvents = function (that) {
-        // TODO: These bindings will not be necessary when we can autobind to a toggle button (FLUID-4573)
-        that.playButton.events.onPress.addListener(function () {
-            that.applier.requestChange("states.play", !that.model.states.play);
-            return true;
-        });
-
-        that.volumeControl.muteButton.events.onPress.addListener(function () {
-            that.applier.requestChange("states.muted", !that.model.states.muted);
-            return true;
-        });
-
-        that.fullScreenButton.events.onPress.addListener(function () {
-            that.applier.requestChange("states.fullscreen", !that.model.states.fullscreen);
-            return true;
-        });
-    };
-    
     fluid.defaults("fluid.videoPlayer.controllers", { 
         gradeNames: ["fluid.viewComponent", "autoInit"], 
         components: {
@@ -113,7 +87,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     strings: {
                         press: "Play",
                         release: "Pause"
-                    }
+                    },
+                    model: "{controllers}.model",
+                    modelPath: "states.play",
+                    applier: "{controllers}.applier"
                 }
             },
             fullScreenButton: {
@@ -131,7 +108,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     strings: {
                         press: "Full screen",
                         release: "Exit full screen mode"
-                    }
+                    },
+                    model: "{controllers}.model",
+                    modelPath: "states.fullscreen",
+                    applier: "{controllers}.applier"
                 }
             }
         },
@@ -173,7 +153,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 that.container.append(resourceSpecs.controls.resourceText);
                 that.events.onTemplateReady.fire();
                 bindControllerModel(that);
-                bindControllerDOMEvents(that);
                 that.events.onControllersReady.fire(that);
             } else {
                 console.log("fetch failed");                
@@ -320,10 +299,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     *           To control the volume                       *
     *********************************************************/
     var bindVolumeDOMEvents = function (that) {
-        // show/hide the volume slider on mousein/out and on focus/blur
-        that.container.mouseover(that.showVolumeControl).mouseout(that.hideVolumeControl);
-        that.container.focus(that.showVolumeControl).blur(that.hideVolumeControl);
-
         // Bind the volume Control slide event to change the video's volume and its image.
         that.locate("volumeControl").bind("slide", function (evt, ui) {
             that.events.onChange.fire(ui.value / 100.0);
@@ -338,15 +313,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     var bindVolumeModel = function (that) {
         that.applier.modelChanged.addListener("states.volume", that.updateVolume);
         that.applier.modelChanged.addListener("states.canPlay", function () {
-            enableElement(that.locate("mute"), that.model.states.canPlay);
+            that.locate("mute").attr("disabled", !that.model.states.canPlay);
         });
-    };
-
-    fluid.videoPlayer.arrowKeys = {
-        LEFT: 37,
-        UP: 38,
-        RIGHT: 39,
-        DOWN: 40
     };
 
     var setUpVolumeControls = function (that) {
@@ -367,7 +335,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             "aria-valuetext": that.model.states.volume + "%",
             "role": "slider"
         });
-        volumeControl.hide();
 
         fluid.tabindex(that.container, 0);
         fluid.tabindex(that.locate("mute"), -1);
@@ -379,9 +346,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         that.container.keydown(function (evt) {
             var volumeControl = that.locate("volumeControl");
             var code = evt.which ? evt.which : evt.keyCode;
-            if ((code === fluid.videoPlayer.arrowKeys.UP)  || (code === fluid.videoPlayer.arrowKeys.RIGHT)) {
+            if ((code === $.ui.keyCode.UP)  || (code === $.ui.keyCode.RIGHT)) {
                 volumeControl.slider("value", volumeControl.slider("value") + 1);
-            } else if ((code === fluid.videoPlayer.arrowKeys.DOWN)  || (code === fluid.videoPlayer.arrowKeys.LEFT)) {
+            } else if ((code === $.ui.keyCode.DOWN)  || (code === $.ui.keyCode.LEFT)) {
                 volumeControl.slider("value", volumeControl.slider("value") - 1);
             } else {
                 return true;
@@ -434,7 +401,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     strings: {
                         press: "Mute",
                         release: "Un-mute"
-                    }
+                    },
+                    model: "{volumeControls}.model",
+                    modelPath: "states.muted",
+                    applier: "{volumeControls}.applier"
                 }
             }
         }
@@ -623,6 +593,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         model: {
             pressed: false
         },
+        modelPath: "pressed",
         strings: {  // Integrators will likely override these strings
             press: "Press",
             release: "Release"
@@ -633,13 +604,13 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         that.activate = function (evt) {
             that.events.onPress.fire(evt);
         };
-        that.toggleButton = function (evt) {
+        that.toggleButton = function () {
             var button = that.locate("button");
             button.toggleClass(that.options.styles.pressed + " " + that.options.styles.released);
-            button.attr("aria-pressed", that.model.pressed);
+            button.attr("aria-pressed", fluid.get(that.model, that.options.modelPath));
         };
         that.toggleState = function (evt) {
-            that.applier.requestChange("pressed", !that.model.pressed);
+            that.applier.requestChange(that.options.modelPath, !fluid.get(that.model, that.options.modelPath));
             if (evt) {
                 evt.stopPropagation();
             }
@@ -650,14 +621,14 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     var setUpToggleButton = function (that) {
         var toggleButton = that.locate("button");
         toggleButton.attr("role", "button").attr("aria-pressed", "false");
-        toggleButton.addClass(that.model.pressed ? that.options.styles.pressed : that.options.styles.released);
+        toggleButton.addClass(fluid.get(that.model, that.options.modelPath) ? that.options.styles.pressed : that.options.styles.released);
 
         that.tooltip = fluid.tooltip(toggleButton, {
             styles: {
                 tooltip: "fl-videoPlayer-tooltip"
             },
             content: function () {
-                return (that.model.pressed ? that.options.strings.release : that.options.strings.press);
+                return (fluid.get(that.model, that.options.modelPath) ? that.options.strings.release : that.options.strings.press);
             }
         });
     };
@@ -670,8 +641,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
         that.events.onPress.addListener(that.toggleState, undefined, undefined, "last");
 
-        that.applier.modelChanged.addListener("pressed", function (evt) {
-            that.toggleButton(evt);
+        that.applier.modelChanged.addListener(that.options.modelPath, function (model, oldModel, changeReqquest) {
+            that.toggleButton();
         });
     };
 
