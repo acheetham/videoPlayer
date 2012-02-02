@@ -58,7 +58,17 @@
                                 type: "JSONcc"
                             }
                         },
-                        currentTrack: "english"
+                        currentTrack: "english",
+
+                        // The following options shouldn't be necessary.
+                        // This is a temporary workaround for FLUID-4585
+                        selection: "none",
+                        choices: [],
+                        names: [],
+                        show: false,
+                        conversionServiceUrl: "/videoPlayer/conversion_service/index.php",
+                        maxNumber: 3,
+                        track: undefined
                     }
 
                 }

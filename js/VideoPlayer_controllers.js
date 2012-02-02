@@ -27,11 +27,12 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      * @param {Object} options configuration options for the component
      */
     //add all the modelChanged listener to the applier
+    // TODO: Privacy is inherited. Consider making this public
     var bindControllerModel = function (that) {
         that.applier.modelChanged.addListener("states.canPlay", function () {
             that.locate("play").attr("disabled", !that.model.states.canPlay);
             that.locate("fullscreen").attr("disabled", !that.model.states.canPlay);
-       });
+        });
     };
 
     fluid.defaults("fluid.videoPlayer.controllers", { 
@@ -81,9 +82,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         button: ".flc-videoPlayer-play"
                     },
                     styles: {
-                        pressed: "fl-videoPlayer-playing",
-                        released: "fl-videoPlayer-paused"
+                        pressed: "fl-videoPlayer-playing"
                     },
+                    // TODO: Strings should be moved out into a single top-leve bundle
                     strings: {
                         press: "Play",
                         release: "Pause"
@@ -102,9 +103,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         button: ".flc-videoPlayer-fullscreen"
                     },
                     styles: {
-                        pressed: "fl-videoPlayer-fullscreen-on",
-                        released: "fl-videoPlayer-fullscreen-off"
+                        pressed: "fl-videoPlayer-fullscreen-on"
                     },
+                    // TODO: Strings should be moved out into a single top-leve bundle
                     strings: {
                         press: "Full screen",
                         release: "Exit full screen mode"
@@ -166,12 +167,14 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     *           of the video                    *
     ********************************************/
         
+    // TODO: Privacy is inherited. Consider making this public
     //change the text of the selected time
     var updateTime = function (that, element) {
         var time = that.locate(element);
         time.text(fluid.videoPlayer.formatTime(that.model.states[element]));
     };
     
+    // TODO: Privacy is inherited. Consider making this public
     var bindScrubberDOMEvents = function (that) {
         // Bind the scrubbers slide event to change the video's time.
         var scrubber = that.locate("scrubber");
@@ -188,6 +191,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         });
     };
 
+    // TODO: Privacy is inherited. Consider making this public
     var bindScrubberModel = function (that) {
         that.applier.modelChanged.addListener("states.currentTime", that.updateCurrentTime);
         that.applier.modelChanged.addListener("states.totalTime", that.updateTotalTime);
@@ -210,6 +214,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         });
     };
 
+    // TODO: Privacy is inherited. Consider making this public
     var createScrubberMarkup = function (that) {
         var scrubber = that.locate("scrubber");
         scrubber.slider({
@@ -219,6 +224,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             "role": "slider"
         });
         
+        // TODO: This in inherited. Do we need to add aria to sliders ourselves?
         scrubber.find(".ui-slider-handle").attr({
             "aria-label": that.options.strings.scrubber,
             "aria-valuemin": 0,
@@ -244,6 +250,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             currentTime: ".flc-videoPlayer-current",
             scrubber: ".flc-videoPlayer-scrubber"
         },
+        // TODO: Strings should be moved out into a single top-leve bundle
         strings: {
             scrubber: "Time scrub"
         }
@@ -298,6 +305,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     * Volume Control: a button that turns into a slider     *
     *           To control the volume                       *
     *********************************************************/
+    // TODO: Privacy is inherited. Consider making this public
     var bindVolumeDOMEvents = function (that) {
         // Bind the volume Control slide event to change the video's volume and its image.
         that.locate("volumeControl").bind("slide", function (evt, ui) {
@@ -310,6 +318,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
     };
 
+    // TODO: Privacy is inherited. Consider making this public
     var bindVolumeModel = function (that) {
         that.applier.modelChanged.addListener("states.volume", that.updateVolume);
         that.applier.modelChanged.addListener("states.canPlay", function () {
@@ -317,6 +326,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         });
     };
 
+    // TODO: Privacy is inherited. Consider making this public
     var setUpVolumeControls = function (that) {
         var volumeControl = that.locate("volumeControl");
         volumeControl.addClass(that.options.styles.volumeControl);
@@ -327,6 +337,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             max: that.model.states.maxVolume,
             value: that.model.states.volume
         });
+        // TODO: This in inherited. Do we need to add aria to sliders ourselves?
         volumeControl.find(".ui-slider-handle").attr({
             "aria-label": that.options.strings.volume,
             "aria-valuemin": that.model.states.minVolume,
@@ -341,8 +352,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         fluid.tabindex(volumeControl, -1);
 
         fluid.activatable(that.container, function (evt) {
-            that.muteButton.activate(evt);
+            that.muteButton.events.onPress.fire(evt);
         });
+        // TODO: This will be converted to use the activatable plugin
+        // as part of FLUID-4552
         that.container.keydown(function (evt) {
             var volumeControl = that.locate("volumeControl");
             var code = evt.which ? evt.which : evt.keyCode;
@@ -384,6 +397,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             volumeControl: "fl-videoPlayer-volumeControl",
             buttonIcon: "ui-icon-signal"
         },
+        // TODO: Strings should be moved out into a single top-leve bundle
         strings: {
             volume: "Volume"
         },
@@ -395,9 +409,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         button: ".flc-videoPlayer-mute"
                     },
                     styles: {
-                        pressed: "fl-videoPlayer-muted",
-                        released: ""
+                        pressed: "fl-videoPlayer-muted"
                     },
+                    // TODO: Strings should be moved out into a single top-leve bundle
                     strings: {
                         press: "Mute",
                         release: "Un-mute"
@@ -481,6 +495,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         styles: {
             selected: "fl-videoPlayer-caption-selected"
         },
+        // TODO: Strings should be moved out into a single top-leve bundle
         strings: {
             captionsOff: "Captions OFF",
             turnCaptionsOff: "Turn Captions OFF"
@@ -494,9 +509,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         button: ".flc-videoPlayer-captions-button"
                     },
                     styles: {
-                        pressed: "fl-videoPlayer-caption-active",
-                        released: ""
+                        pressed: "fl-videoPlayer-caption-active"
                     },
+                    // TODO: Strings should be moved out into a single top-leve bundle
                     strings: {
                         press: "Captions",
                         release: "Captions"
@@ -506,13 +521,13 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    var setUpCaptionControls = function (that) {
+    fluid.videoPlayer.controllers.captionControls.setUpCaptionControls = function (that) {
         that.captionsOffOption = $(that.locate("languageLabel")[that.model.captions.choices.indexOf("none")]);
         that.locate("languageList").hide();
         that.captionsOffOption.addClass(that.options.styles.selected);
     };
 
-    var bindCaptionDOMEvents = function (that) {
+    fluid.videoPlayer.controllers.captionControls.bindCaptionDOMEvents = function (that) {
         that.captionButton.events.onPress.addListener(function (evt) {
             that.locate("languageList").toggle();
             // prevent the default onPress handler from toggling the button state:
@@ -521,32 +536,33 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         });
     };
 
-    var bindCaptionModel = function (that) {
+    fluid.videoPlayer.controllers.captionControls.bindCaptionModel = function (that) {
         that.applier.modelChanged.addListener("captions.selection", function (model, oldModel, changeRequest) {
             var oldSel = oldModel.captions.selection;
             var newSel = model.captions.selection;
-            if (oldSel !== newSel) {
-                var labels = that.locate("languageLabel");
-                $(labels[model.captions.choices.indexOf(oldSel)]).removeClass(that.options.styles.selected);
-                $(labels[model.captions.choices.indexOf(newSel)]).addClass(that.options.styles.selected);
-
-                if ((oldSel === "none") || (newSel === "none")) {
-                    that.captionButton.toggleState();
-                    if (newSel === "none") {
-                        that.captionsOffOption.text(that.options.strings.captionsOff);
-                    } else if (oldSel === "none") {
-                        that.captionsOffOption.text(that.options.strings.turnCaptionsOff);
-                    }
-                }
+            if (oldSel === newSel) {
+                return true;
             }
+
+            // TODO: can we do this in CSS?
+            var labels = that.locate("languageLabel");
+            $(labels[model.captions.choices.indexOf(oldSel)]).removeClass(that.options.styles.selected);
+            $(labels[model.captions.choices.indexOf(newSel)]).addClass(that.options.styles.selected);
+
+            // TODO: Can we move the responsibility to requestStateChange elsewhere?
+            if ((oldSel === "none") || (newSel === "none")) {
+                that.captionButton.requestStateChange();
+                that.captionsOffOption.text(newSel === "none" ? that.options.strings.captionsOff : that.options.strings.turnCaptionsOff);
+            }
+
             return true;
         }, "captionControls");
     };
 
     fluid.videoPlayer.controllers.captionControls.finalInit = function (that) {
-        setUpCaptionControls(that);
-        bindCaptionDOMEvents(that);
-        bindCaptionModel(that);
+        fluid.videoPlayer.controllers.captionControls.setUpCaptionControls(that);
+        fluid.videoPlayer.controllers.captionControls.bindCaptionDOMEvents(that);
+        fluid.videoPlayer.controllers.captionControls.bindCaptionModel(that);
         that.events.onReady.fire(that);
     };
 
@@ -577,78 +593,92 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      *****************************************************************************/
     fluid.defaults("fluid.videoPlayer.controllers.toggleButton", {
         gradeNames: ["fluid.viewComponent", "autoInit"],
+        preInitFunction: "fluid.videoPlayer.controllers.toggleButton.preInit",
         postInitFunction: "fluid.videoPlayer.controllers.toggleButton.postInit",
         finalInitFunction: "fluid.videoPlayer.controllers.toggleButton.finalInit",
         events: {
             onPress: "preventable", // listeners can prevent button from becoming pressed
             onReady: null
         },
+        listeners: {
+            onPress: {
+                listener: "{toggleButton}.requestStateChange",
+                priority: "last"
+            }
+        },
         selectors: {    // Integrators may override this selector
             button: ".flc-videoPlayer-button"
         },
-        styles: {   // Integrators will likely override these styles
+        styles: {
             pressed: "fl-videoPlayer-button-pressed",
-            released: "fl-videoPlayer-button-released"
+            tooltip: "fl-videoPlayer-tooltip"
         },
-        model: {
-            pressed: false
-        },
+        model: {},
         modelPath: "pressed",
+        // TODO: Strings should be moved out into a single top-leve bundle
         strings: {  // Integrators will likely override these strings
             press: "Press",
             release: "Release"
         }
     });
 
-    fluid.videoPlayer.controllers.toggleButton.postInit = function (that) {
-        that.activate = function (evt) {
-            that.events.onPress.fire(evt);
-        };
-        that.toggleButton = function () {
-            var button = that.locate("button");
-            button.toggleClass(that.options.styles.pressed + " " + that.options.styles.released);
-            button.attr("aria-pressed", fluid.get(that.model, that.options.modelPath));
-        };
-        that.toggleState = function (evt) {
+    fluid.videoPlayer.controllers.toggleButton.preInit = function (that) {
+        that.requestStateChange = function () {
             that.applier.requestChange(that.options.modelPath, !fluid.get(that.model, that.options.modelPath));
-            if (evt) {
-                evt.stopPropagation();
-            }
-            return true;
         };
     };
 
-    var setUpToggleButton = function (that) {
+    fluid.videoPlayer.controllers.toggleButton.postInit = function (that) {
+        that.requestPress = function () {
+            that.applier.requestChange(that.options.modelPath, true);
+        };
+        that.requestRelease = function () {
+            that.applier.requestChange(that.options.modelPath, false);
+        };
+        that.updatePressedState = function () {
+            var button = that.locate("button");
+            var pressed = !!fluid.get(that.model, that.options.modelPath);
+            button.toggleClass(that.options.styles.pressed, pressed);
+            button.attr("aria-pressed", pressed.toString());
+        };
+        that.enabled = function (state) {
+            that.locate("button").prop("disabled", !state);
+        };
+    };
+
+    fluid.videoPlayer.controllers.toggleButton.setUpToggleButton = function (that) {
         var toggleButton = that.locate("button");
-        toggleButton.attr("role", "button").attr("aria-pressed", "false");
-        toggleButton.addClass(fluid.get(that.model, that.options.modelPath) ? that.options.styles.pressed : that.options.styles.released);
+        toggleButton.attr("role", "button");
 
         that.tooltip = fluid.tooltip(toggleButton, {
             styles: {
-                tooltip: "fl-videoPlayer-tooltip"
+                tooltip: that.options.styles.tooltip
             },
             content: function () {
                 return (fluid.get(that.model, that.options.modelPath) ? that.options.strings.release : that.options.strings.press);
             }
         });
+
+        that.updatePressedState();
     };
 
-    var bindToggleButtonEvents = function (that) {
+    fluid.videoPlayer.controllers.toggleButton.bindToggleButtonEvents = function (that) {
         var button = that.locate("button");
         button.click(function (evt) {
-            that.activate(evt);
+            that.events.onPress.fire(evt);
+            if (evt) {
+                evt.stopPropagation();
+            }
         });
 
-        that.events.onPress.addListener(that.toggleState, undefined, undefined, "last");
-
-        that.applier.modelChanged.addListener(that.options.modelPath, function (model, oldModel, changeReqquest) {
-            that.toggleButton();
+        that.applier.modelChanged.addListener(that.options.modelPath, function (model, oldModel, changeRequest) {
+            that.updatePressedState();
         });
     };
 
     fluid.videoPlayer.controllers.toggleButton.finalInit = function (that) {
-        setUpToggleButton(that);
-        bindToggleButtonEvents(that);
+        fluid.videoPlayer.controllers.toggleButton.setUpToggleButton(that);
+        fluid.videoPlayer.controllers.toggleButton.bindToggleButtonEvents(that);
         that.events.onReady.fire(that);
     };
  

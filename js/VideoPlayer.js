@@ -329,6 +329,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         // add the 'turn captions off' option
         that.options.model.captions.choices.push("none");
         that.options.model.captions.names.push(that.options.strings.captionsOff);
+
+        // TODO: find out why attaching this in postInit is too late for it to be bound as a listener in the defaults
+        that.refresh = function () {
+            that.fullscreen();
+        };
     };
 
     fluid.videoPlayer.postInit = function (that) {
@@ -394,10 +399,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 that.events.onTimeChange.fire(newVol >= 0 ? newVol : 0);
             }
             that.events.afterTimeChange.fire();
-        };
-
-        that.refresh = function () {
-            that.fullscreen();
         };
     };
     
