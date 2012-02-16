@@ -4,6 +4,7 @@
 
 .fl-videoPlayer {
     position: relative;
+    font-family: sans-serif;
 }
 .fl-videoPlayer:focus,
 .fl-videoPlayer :focus {
@@ -122,14 +123,14 @@
 .fl-videoPlayer-languageMenu {
     position: absolute;
     bottom: -2.5em;
-    background: #dddddd;
+    background: #D4D4D4;
     text-align: left;
 }
 
 .fl-videoPlayer-languageMenu,
 .fl-videoPlayer-languageMenu li {
     display: block;
-    padding-left: 0;
+    padding: 0.1em 0.2em;
 }
 .fl-videoPlayer-languageMenu .fl-videoPlayer-caption-selected {
     color: yellow;
