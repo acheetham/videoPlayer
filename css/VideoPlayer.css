@@ -119,11 +119,19 @@
     background-color: wheat;
 }
 
-ul.fl-videoPlayer-captions-languageList,
-ul.fl-videoPlayer-captions-languageList li {
-    display: block;
+.fl-videoPlayer-languageMenu {
+    position: absolute;
+    bottom: -2.5em;
+    background: #dddddd;
+    text-align: left;
 }
-ul.fl-videoPlayer-captions-languageList .fl-videoPlayer-caption-selected {
+
+.fl-videoPlayer-languageMenu,
+.fl-videoPlayer-languageMenu li {
+    display: block;
+    padding-left: 0;
+}
+.fl-videoPlayer-languageMenu .fl-videoPlayer-caption-selected {
     color: yellow;
 }
 .fl-videoPlayer-time {
