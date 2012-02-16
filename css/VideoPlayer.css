@@ -5,6 +5,9 @@
  *   active: green
  *   slider handle: blue
  */
+.fl-videoPlayer {
+    font-family: sans-serif;
+}
 
 /*
  * Slider styles
@@ -17,8 +20,14 @@
     height: 0.8em;
 }
 .fl-theme .fl-videoPlayer .fl-slider {
-    border: 0.1em solid #dddddd;
-    background-color: #EEEEEE;
+    border: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+}
+.fl-theme .fl-videoPlayer .fl-slider {
+    background-color: #505050;
+    opacity: 0.7;
     color: #333333;
 }
 .fl-videoPlayer .fl-slider a {
@@ -31,7 +40,7 @@
     cursor: default;
 }
 .fl-theme .fl-videoPlayer .fl-slider a {
-    background-color: blue;
+    background-color: #505050;
 }
 .fl-videoPlayer .fl-slider .ui-slider-range {
     border: 0;
@@ -42,7 +51,9 @@
     height: 100%;
 }
 .fl-theme .fl-videoPlayer .fl-slider .ui-slider-range {
-    background-color: orange;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FAF6D2), to(#FAD532));
+    background-image: -moz-linear-gradient(0% 45% 90deg,#FAD532, #FAF6D2);
+    background-color: #FAD532; /* orangy-yellow */
 }
 
 /*
@@ -212,8 +223,8 @@ ul.fl-videoPlayer-captions-languageList li {
     margin-bottom: 0.3em;
 }
 .fl-theme .fl-videoPlayer-time {
-    background-color: white;
-    color: black;
+    background-color: black;
+    color: white;
 }
 /*
  * Scrub bar controls
