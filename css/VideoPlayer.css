@@ -74,14 +74,14 @@ img.fl-videoPlayer-initialOverlay {
     bottom: 0;
     width:100%;
 }
-.fl-videoPlayer-theme .fl-videoPlayer-bottomButtons {
+.fl-theme .fl-videoPlayer-bottomButtons {
     background-color: #D3D3D3;
     opacity: 0.7;
 }
-.fl-videoPlayer-theme .fl-videoPlayer-button {
-    color: #D3D3D3;
+.fl-theme .fl-videoPlayer-button {
+    background-color: #D3D3D3;
 }
-.fl-videoPlayer-theme .fl-videoPlayer-button:hover {
+.fl-theme .fl-videoPlayer-button:hover {
     background-color: #B1B1B1;
 }
 .fl-videoPlayer-bottomButtons {
@@ -91,13 +91,11 @@ img.fl-videoPlayer-initialOverlay {
     display: inline-block;
     float: left;
     margin-left: 0.5em;
-    margin-bottom: 0.2em;
 }
 .fl-videoPlayer-rightButtons * {
     float: right;
     display: inline-block;
     margin-right: 0.5em;
-    margin-bottom: 0.2em;
 }
 .fl-videoPlayer-tooltip {
     position    : absolute;
@@ -108,12 +106,9 @@ img.fl-videoPlayer-initialOverlay {
     height: 3em;
     border: 0;
     cursor: pointer;
-    -moz-border-radius: 0.2em;
-    -webkit-border-radius: 0.2em;
-    border-radius: 0.2em;
 }
 .fl-theme .fl-videoPlayer-button:focus {
-    background-color: orange;
+    background-color: white;
 }
 
 /*
