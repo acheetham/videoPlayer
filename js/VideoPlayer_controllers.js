@@ -1,14 +1,14 @@
 /*
 Copyright 2009 University of Toronto
 Copyright 2011 Charly Molter
-Copyright 2011 OCAD University
+Copyright 2011-2012 OCAD University
 
 Licensed under the Educational Community License (ECL), Version 2.0 or the New
 BSD license. You may not use this file except in compliance with one these
 Licenses.
 
 You may obtain a copy of the ECL 2.0 License and BSD License at
-https://source.fluidproject.org/svn/LICENSE.txt
+https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 */
 
 /*global jQuery, window, fluid*/
@@ -19,146 +19,145 @@ https://source.fluidproject.org/svn/LICENSE.txt
 
 (function ($) {
 
-    //change the classes/title/checked of the selected checkbox
-    var toggleView = function (that, element) {
-        var tag = that.locate(element);
-        if (that.model.states[element] === false) {
-            tag.removeAttr("checked");
-            tag.button("option", "label", that.options.strings[element + "On"]);
-            tag.removeClass(that.options.styles[element + "Off"]).addClass(that.options.styles[element + "On"]);                
-        } else {
-            tag.attr({
-                "checked": "checked"
-            });
-            tag.button("option", "label", that.options.strings[element + "Off"]);
-            
-            tag.removeClass(that.options.styles[element + "On"]).addClass(that.options.styles[element + "Off"]);
-        }
-        tag.button("refresh");
-    };
-    
     /**
      * controllers is a video controller containing a play button, a time scrubber, 
-     *      a volume controller, a button to put captions on/off and a menu
+     *      a volume controller, a button to put captions on/off
+     *      , a button to put transcripts on/off
      * 
      * @param {Object} container the container which this component is rooted
      * @param {Object} options configuration options for the component
      */
     //add all the modelChanged listener to the applier
+    // TODO: Privacy is inherited. Consider making this public
     var bindControllerModel = function (that) {
-        that.applier.modelChanged.addListener("states.canPlay", function () {
-            var playButton = that.locate("play");
-            if (that.model.states.canPlay === true) {
-                playButton.button("enable");
-                that.locate("displayCaptions").button("enable");
-                that.locate("fullscreen").button("enable");
-            } else {
-                playButton.button("disable");
-                that.locate("displayCaptions").button("disable");
-                that.locate("fullscreen").button("disable");
-            }
+        that.applier.modelChanged.addListener("canPlay", function () {
+            that.locate("play").attr("disabled", !that.model.canPlay);
+            that.locate("fullscreen").attr("disabled", !that.model.canPlay);
         });
-        that.applier.modelChanged.addListener("states.play", that.togglePlayView);
-        that.applier.modelChanged.addListener("states.displayCaptions", that.toggleCaptionsView);
-        that.applier.modelChanged.addListener("states.fullscreen", that.toggleFullscreenView);
-    };
-
-    var bindControllerDOMEvents = function (that) {
-        that.locate("play").click(function () {
-            that.applier.fireChangeRequest({
-                "path": "states.play",
-                "value": !that.model.states.play
-            });
-        });
-
-        that.locate("fullscreen").fluid("activatable", function () {
-            that.applier.fireChangeRequest({
-                "path": "states.fullscreen",
-                "value": !that.model.states.fullscreen
-            });
-        });
-
-        that.locate("displayCaptions").fluid("activatable", function () {
-            that.applier.fireChangeRequest({
-                "path": "states.displayCaptions",
-                "value": !that.model.states.displayCaptions
-            });
-        });
-    };
-    
-    var createControllerMarkup = function (that) {
-        that.locate("play").button({
-            icons: {
-                primary: that.model.states.play ? that.options.styles.pauseIcon : that.options.styles.playIcon
-            },
-            disabled: !that.model.states.canPlay,
-            text: false,
-            label: that.model.states.play ? that.options.strings.playOff : that.options.strings.playOn 
-        });
-        that.locate("displayCaptions").button({
-            icons: {
-                primary: that.options.styles.captionIcon
-            },
-            disabled: !that.model.states.canPlay,
-            text: false,
-            label: that.model.states.displayCaptions ? that.options.strings.displayCaptionsOff : that.options.strings.displayCaptionsOn
-        });
-        that.locate("fullscreen").button({
-            icons: {
-                primary: that.options.styles.fullscreenIcon
-            },
-            disabled: !that.model.states.canPlay,
-            text: false,
-            label: that.model.states.fullscreen ? that.options.strings.fullscreenOff : that.options.strings.fullscreenOn
-        });
-        
-        that.events.onMarkupReady.fire();
     };
 
     fluid.defaults("fluid.videoPlayer.controllers", { 
-        gradeNames: ["fluid.rendererComponent", "autoInit"], 
+        gradeNames: ["fluid.viewComponent", "autoInit"], 
         components: {
             scrubber: {
                 type: "fluid.videoPlayer.controllers.scrubber",
                 container: "{controllers}.dom.scrubberContainer",
-                createOnEvent: "onMarkupReady",
                 options: {
                     model: "{controllers}.model",
                     applier: "{controllers}.applier",
                     events: {
-                        onScrub: "{controllers}.events.onTimeChange",
-                        afterScrub: "{controllers}.events.afterTimeChange",
-                        onStartScrub: "{controllers}.events.onStartTimeChange"
+                        onScrub: "{controllers}.events.onScrub",
+                        afterScrub: "{controllers}.events.afterScrub",
+                        onStartScrub: "{controllers}.events.onStartScrub"
                     }
                 }
             },
             volumeControl: {
-                type: "fluid.videoPlayer.controllers.volumeControl",
+                type: "fluid.videoPlayer.volumeControls",
                 container: "{controllers}.dom.volumeContainer",
-                createOnEvent: "onMarkupReady",
                 options: {
                     model: "{controllers}.model",
+                    applier: "{controllers}.applier"
+                }
+            },
+            captionControls: {
+                type: "fluid.videoPlayer.languageControls",
+                container: "{controllers}.dom.captionControlsContainer",
+                options: {
+                    languages: "{controllers}.options.captions",
+                    model: "{controllers}.model",
                     applier: "{controllers}.applier",
-                    events: {
-                        onChange: "{controllers}.events.onVolumeChange"
+                    showHidePath: "displayCaptions",
+                    currentLanguagePath: "currentTracks.captions",
+                    selectors: {
+                        button: ".flc-videoPlayer-captions-button",
+                        menu: ".flc-videoPlayer-captions-languageMenu"
+                    },
+                    styles: {
+                        button: "fl-videoPlayer-captions-button",
+                        buttonWithShowing: "fl-videoPlayer-captions-button-on"
+                    },
+                    strings: {
+                        showLanguage: "Show Captions",
+                        hideLanguage: "Hide Captions",
+                        press: "Captions",
+                        release: "Captions"
                     }
                 }
             },
-            menu: {
-                type: "fluid.videoPlayer.controllers.menu",
-                container: "{controllers}.dom.menuContainer",
-                createOnEvent: "onMarkupReady",
+            transcriptControls: {
+                type: "fluid.videoPlayer.languageControls",
+                container: "{controllers}.dom.transcriptControlsContainer",
                 options: {
+                    languages: "{controllers}.options.transcripts",
                     model: "{controllers}.model",
+                    applier: "{controllers}.applier",
+                    showHidePath: "displayTranscripts",
+                    currentLanguagePath: "currentTracks.transcripts",
+                    selectors: {
+                        button: ".flc-videoPlayer-transcripts-button",
+                        menu: ".flc-videoPlayer-transcripts-languageMenu"
+                    },
+                    styles: {
+                        button: "fl-videoPlayer-transcripts-button",
+                        buttonWithShowing: "fl-videoPlayer-transcripts-button-on"
+                    },
+                    strings: {
+                        showLanguage: "Show Transcripts",
+                        hideLanguage: "Hide Transcripts",
+                        press: "Transcripts",
+                        release: "Transcripts"
+                    }
+                }
+            },
+            playButton: {
+                type: "fluid.toggleButton",
+                container: "{controllers}.container",
+                options: {
+                    selectors: {
+                        button: ".flc-videoPlayer-play"
+                    },
+                    styles: {
+                        init: "fl-videoPlayer-play",
+                        pressed: "fl-videoPlayer-playing"
+                    },
+                    // TODO: Strings should be moved out into a single top-level bundle (FLUID-4590)
+                    strings: {
+                        press: "Play",
+                        release: "Pause"
+                    },
+                    model: "{controllers}.model",
+                    modelPath: "play",
+                    ownModel: false,
+                    applier: "{controllers}.applier"
+                }
+            },
+            fullScreenButton: {
+                type: "fluid.toggleButton",
+                container: "{controllers}.container",
+                options: {
+                    selectors: {
+                        button: ".flc-videoPlayer-fullscreen"
+                    },
+                    styles: {
+                        init: "fl-videoPlayer-fullscreen",
+                        pressed: "fl-videoPlayer-fullscreen-on"
+                    },
+                    // TODO: Strings should be moved out into a single top-level bundle (FLUID-4590)
+                    strings: {
+                        press: "Full screen",
+                        release: "Exit full screen mode"
+                    },
+                    model: "{controllers}.model",
+                    modelPath: "fullscreen",
+                    ownModel: false,
                     applier: "{controllers}.applier"
                 }
             }
         },
         finalInitFunction: "fluid.videoPlayer.controllers.finalInit",
-        preInitFunction: "fluid.videoPlayer.controllers.preInit",
         events: {
             onControllersReady: null,
-            onVolumeChange: null,
             onStartTimeChange: null,
             onTimeChange: null,
             afterTimeChange: null,
@@ -166,108 +165,39 @@ https://source.fluidproject.org/svn/LICENSE.txt
         },
 
         selectors: {
-            play: ".flc-videoPlayer-controller-play",
-            displayCaptions: ".flc-videoPlayer-controller-caption",
-            fullscreen: ".flc-videoPlayer-controller-fullscreen",
-            scrubberContainer: ".flc-videoPlayer-controller-scrubberContainer",
-            volumeContainer: ".flc-videoPlayer-controller-volumeContainer",
-            menuContainer: ".flc-videoPlayer-controller-menuContainer"
+            play: ".flc-videoPlayer-play",
+            scrubberContainer: ".flc-videoPlayer-scrubberContainer",
+            volumeContainer: ".flc-videoPlayer-volumeContainer",
+            captionControlsContainer: ".flc-videoPlayer-captionControls-container",
+            transcriptControlsContainer: ".flc-videoPlayer-transcriptControls-container",
+            fullscreen: ".flc-videoPlayer-fullscreen"
         },
-        selectorsToIgnore: ["scrubberContainer", "volumeContainer", "menuContainer"],
 
         styles: {
-            playOn: "fl-videoPlayer-state-play",
-            playOff: "fl-videoPlayer-state-pause",
-            displayCaptionsOn: "fl-videoPlayer-state-captionOn",
-            displayCaptionsOff: "fl-videoPlayer-state-captionOff",
             fullscreenOn: "fl-videoPlayer-state-fullscreenOn",
             fullscreenOff: "fl-videoPlayer-state-fullscreenOff",
-            pauseIcon: "ui-icon-pause",
-            playIcon: "ui-icon-play",
             fullscreenIcon: "ui-icon-extlink",
-            captionIcon: "ui-icon-comment"
-        },
-
-        strings: {
-            playOn: "Play",
-            playOff: "Pause",
-            displayCaptionsOn: "Captions On",
-            displayCaptionsOff: "Captions Off",
-            fullscreenOn: "Fullscreen On",
-            fullscreenOff: "Fullscreen Off"
-        },
-
-        rendererOptions: {
-            autoBind: true,
-            applier: "{controllers}.applier"
-        },
-
-        produceTree: "fluid.videoPlayer.controllers.produceTree"
+            captionIcon: "ui-icon-comment",
+            transcriptIcon: "ui-icon-comment"
+        }
     });
 
-    fluid.videoPlayer.controllers.produceTree = function (that) {
-        var tree = {};
-        var value;
-        for (var item in that.model.states) {
-            if (that.options.selectors[item]) {
-                tree[item] = {};
-                if (item === "fullscreen" || item === "displayCaptions") {
-                    tree[item].valuebinding = "states." + item;
-                }
-                if (item === "play" || item === "displayCaptions" || item === "fullscreen") {
-                    value = that.model.states[item] ? "On" : "Off";
-                    // render radio buttons
-                    tree[item].decorators = {
-                        addClass: that.options.styles[item + value]
-                    };
-                    if (item === "play") {
-                        tree[item].decorators.attributes = {"disabled": "disabled"};
-                    }
+    // Hide fullscreen button if browser does not have a fullscreen functionality
+    fluid.demands("fluid.videoPlayer.controllers", "fluid.videoPlayer", {
+        options: {
+            components: {
+                fullScreenButton: {
+                    type: "fluid.emptySubcomponent"
                 }
             }
         }
-        return tree;
-    };
-
-    fluid.videoPlayer.controllers.preInit = function (that) {   
-        that.togglePlayView = function () {
-            var play = that.locate("play");
-            var options = {};
-            if (that.model.states.play) {
-                play.removeClass(that.options.styles.playOn).addClass(that.options.styles.playOff);
-                options = {
-                    label: that.options.strings.playOff,
-                    icons: { primary: that.options.styles.pauseIcon}
-                };
-            } else {
-                play.removeClass(that.options.styles.playOff).addClass(that.options.styles.playOn);
-                options = {
-                    label: that.options.strings.playOn,
-                    icons: { primary: that.options.styles.playIcon}
-                };
-            }
-            play.button("option", options);
-        };
-
-        that.toggleCaptionsView = function () {
-            toggleView(that, "displayCaptions");
-        };
-
-        that.toggleFullscreenView = function () {
-            toggleView(that, "fullscreen");
-        };
-
-        that.refresh = function () {
-            createControllerMarkup(that);
-        };
-    };
+    });
+    fluid.demands("fluid.videoPlayer.controllers", ["fluid.browser.supportsFullScreen", "fluid.videoPlayer"], {
+        options: fluid.COMPONENT_OPTIONS
+    });
 
     fluid.videoPlayer.controllers.finalInit = function (that) {
-        that.renderer.refreshView();
-        createControllerMarkup(that);
         bindControllerModel(that);
-        bindControllerDOMEvents(that);
-
         that.events.onControllersReady.fire(that);
     };
     
@@ -276,12 +206,14 @@ https://source.fluidproject.org/svn/LICENSE.txt
     *           of the video                    *
     ********************************************/
         
+    // TODO: Privacy is inherited. Consider making this public
     //change the text of the selected time
     var updateTime = function (that, element) {
         var time = that.locate(element);
-        time.text(fluid.videoPlayer.formatTime(that.model.states[element]));
+        time.text(fluid.videoPlayer.formatTime(that.model[element]));
     };
     
+    // TODO: Privacy is inherited. Consider making this public
     var bindScrubberDOMEvents = function (that) {
         // Bind the scrubbers slide event to change the video's time.
         var scrubber = that.locate("scrubber");
@@ -298,17 +230,19 @@ https://source.fluidproject.org/svn/LICENSE.txt
         });
     };
 
+    // TODO: This function is inherited. Consider making this public
     var bindScrubberModel = function (that) {
         // Setup the scrubber when we know the duration of the video.
-        that.applier.modelChanged.addListener("states.startTime", that.updateMin);
-        that.applier.modelChanged.addListener("states.startTime", that.updateMax);
-        that.applier.modelChanged.addListener("states.totalTime", that.updateMax);
-        // Bind to the video's timeupdate event so we can programmatically update the slider.
-        that.applier.modelChanged.addListener("states.currentTime", that.updateCurrent);
+        that.applier.modelChanged.addListener("startTime", that.updateMin);
+        that.applier.modelChanged.addListener("totalTime", that.updateMax);
 
-        that.applier.modelChanged.addListener("states.canPlay", function () {
+        // Bind to the video's timeupdate event so we can programmatically update the slider.
+        that.applier.modelChanged.addListener("currentTime", that.updateCurrent);
+        that.applier.modelChanged.addListener("buffered", that.updateBuffered);
+
+        that.applier.modelChanged.addListener("canPlay", function () {
             var scrubber = that.locate("scrubber");
-            if (that.model.states.canPlay === true) {
+            if (that.model.canPlay === true) {
                 scrubber.slider("enable");
             } else {
                 scrubber.slider("disable");
@@ -316,342 +250,316 @@ https://source.fluidproject.org/svn/LICENSE.txt
         });
     };
 
+    // TODO: Privacy is inherited. Consider making this public
     var createScrubberMarkup = function (that) {
         var scrubber = that.locate("scrubber");
         scrubber.slider({
             unittext: "seconds",
+            range: "min",
             disabled: true
-        }).attr({
-            "role": "slider"
         });
         
-        scrubber.find(".ui-slider-handle").attr({
+        // TODO: This in inherited. Do we need to add aria to sliders ourselves?
+        that.locate("handle").attr({
             "aria-label": that.options.strings.scrubber,
             "aria-valuemin": 0,
             "aria-valuemax": 0,
             "aria-valuenow": 0,
-            "aria-valuetext": 0
+            "aria-valuetext": 0,
+            "role": "slider"
         });
         return scrubber;
     };
 
     fluid.defaults("fluid.videoPlayer.controllers.scrubber", {
-        gradeNames: ["fluid.rendererComponent", "autoInit"],
+        gradeNames: ["fluid.viewComponent", "autoInit"],
         finalInitFunction: "fluid.videoPlayer.controllers.scrubber.finalInit",
-        preInitFunction: "fluid.videoPlayer.controllers.scrubber.preInit",
+        postInitFunction: "fluid.videoPlayer.controllers.scrubber.postInit",
+        components: {
+            bufferedProgress: {
+                type: "fluid.progress",
+                container: "{scrubber}.dom.bufferedProgress",
+                options: {
+                    initiallyHidden: false,
+                    minWidth: 0
+                }
+            },
+        },
         events: {
             afterScrub: null,
             onScrub: null,
             onScrubberReady: null,
             onStartScrub: null
         },
-        selectors: {
-            totalTime: ".flc-videoPlayer-controller-total",
-            currentTime: ".flc-videoPlayer-controller-current",
-            scrubber: ".flc-videoPlayer-controller-scrubber"
+        invokers: {
+            updateBuffered: {
+                funcName: "fluid.videoPlayer.controllers.scrubber.updateBuffered",
+                args: ["{fluid.videoPlayer.controllers.scrubber}"]
+            }  
         },
+        selectors: {
+            totalTime: ".flc-videoPlayer-total",
+            currentTime: ".flc-videoPlayer-current",
+            scrubber: ".flc-videoPlayer-scrubber",
+            handle: ".ui-slider-handle",
+            bufferedProgress: ".flc-videoPlayer-buffered-progress",
+            bufferedProgressBar: ".flc-progress-bar"
+        },
+        // TODO: Strings should be moved out into a single top-level bundle (FLUID-4590)
         strings: {
             scrubber: "Time scrub"
-        },
-        produceTree: "fluid.videoPlayer.controllers.scrubber.produceTree"
+        }
     });
 
-    fluid.videoPlayer.controllers.scrubber.produceTree = function (that) {
-        var tree = {
-            currentTime: "${states.currentTime}",
-            totalTime: "${states.totalTime}",
-            scrubber: {}
-        };
+    // The flag that stops the buffer progress update once the video is fully buffered.
+    var bufferCompleted = false;
+    
+    fluid.videoPlayer.controllers.scrubber.updateBuffered = function (that) {
+        // "model.buffered" is a TimeRanges object (http://www.whatwg.org/specs/web-apps/current-work/#time-ranges)
+        var lastBufferedTime = that.model.buffered.end(that.model.buffered.length - 1);
+        var totalTime = that.model.totalTime;
         
-        return tree;
+        // Turn on buffer progress update if the re-buffering is triggered, for instance, 
+        // by rewinding back
+        if (lastBufferedTime !== totalTime) {
+            bufferCompleted = false;
+        }
+        
+        if (totalTime && lastBufferedTime && !bufferCompleted) {
+            var percent = Math.round(lastBufferedTime / totalTime * 100);
+            
+            // Explicitly setting the width of .flc-progress-bar is a work-around for the Chrome/IE9 issue
+            // that the width of the progress div is reduced at the controller bar slide-up
+            that.locate("bufferedProgressBar").width(that.model.videoWidth);
+            that.bufferedProgress.update(percent);
+            
+            // Stops the buffer progress from being kept updated once the progress reaches 100%
+            if (lastBufferedTime === totalTime) {
+                bufferCompleted = true;
+            }
+        }
     };
 
-    fluid.videoPlayer.controllers.scrubber.preInit = function (that) {
+    fluid.videoPlayer.controllers.scrubber.postInit = function (that) {
+        // TODO: these methods should be public functions, since people might like to alter them
+        //       (inherited code)
         that.updateMin = function () {
-            var startTime = that.model.states.startTime || 0;
+            var startTime = that.model.startTime || 0;
             var scrubber = that.locate("scrubber");
-            scrubber.slider("option", "min", startTime + that.model.states.currentTime);
-            scrubber.find(".ui-slider-handle").attr({
-                "aria-valuemin": startTime + that.model.states.currentTime
+            scrubber.slider("option", "min", startTime + that.model.currentTime);
+            that.locate("handle").attr({
+                "aria-valuemin": startTime + that.model.currentTime
             });
         };
 
         that.updateMax = function () {
             updateTime(that, "totalTime");
             var scrubber = that.locate("scrubber");
-            scrubber.slider("option", "max", that.model.states.totalTime);
-            scrubber.find(".ui-slider-handle").attr({
-                "aria-valuemax": that.model.states.totalTime
+            scrubber.slider("option", "max", that.model.totalTime);
+            that.locate("handle").attr({
+                "aria-valuemax": that.model.totalTime
             });
         };
 
         that.updateCurrent = function () {
             updateTime(that, "currentTime");
             var scrubber = that.locate("scrubber");
-            scrubber.slider("value", that.model.states.currentTime);
-            scrubber.find(".ui-slider-handle").attr({
-                "aria-valuenow": that.model.states.totalTime,
-                "aria-valuetext": fluid.videoPlayer.formatTime(that.model.states.currentTime) + " of " + fluid.videoPlayer.formatTime(that.model.states.totalTime)
+            scrubber.slider("value", that.model.currentTime);
+            that.locate("handle").attr({
+                "aria-valuenow": that.model.currentTime,
+                "aria-valuetext": fluid.videoPlayer.formatTime(that.model.currentTime) + " of " + fluid.videoPlayer.formatTime(that.model.totalTime)
             });
         };
+
     };
 
     fluid.videoPlayer.controllers.scrubber.finalInit = function (that) {
         createScrubberMarkup(that);
         bindScrubberDOMEvents(that);
         bindScrubberModel(that);
-
+        
         that.events.onScrubberReady.fire();
     };
+    
 
     /********************************************************
     * Volume Control: a button that turns into a slider     *
     *           To control the volume                       *
     *********************************************************/
-    var bindVolumeDOMEvents = function (that) {
-        var volumeButton = that.locate("volume");
-        var volumeControl = that.locate("volumeControl");
-        // hide the volume slider when the button is clicked
-        volumeButton.click(that.toggleSlider);
-        volumeControl.focusout(that.toggleSlider);
+    
+    fluid.registerNamespace("fluid.videoPlayer.volumeControls");
+    
+    fluid.videoPlayer.volumeControls.bindDOMEvents = function (that) {
         // Bind the volume Control slide event to change the video's volume and its image.
-        volumeControl.bind("slide", function (evt, ui) {
-            that.events.onChange.fire(ui.value / 100.0);
+        that.locate("volumeControl").bind("slide", function (evt, ui) {
+            fluid.fireSourcedChange(that.applier, "volume", ui.value, "slider");
         });
-    };
 
-    var bindVolumeModel = function (that) {
-        that.applier.modelChanged.addListener("states.volume", that.updateVolume);
-        that.applier.modelChanged.addListener("states.canPlay", function () {
-            if (that.model.states.canPlay === true) {
-                that.locate("volume").button("enable");
-            } else {
-                that.locate("volume").button("disable");
+        that.locate("volumeControl").bind("slidechange", function (evt, ui) {
+            fluid.fireSourcedChange(that.applier, "volume", ui.value, "slider");
+        });
+
+    };
+    
+    fluid.videoPlayer.updateMuteStatus = function (that) {
+        return function(newModel, oldModel) {
+            if (!that.applier.hasChangeSource("mute")) {
+                if (that.model.volume === 0) {
+                    that.oldVolume = oldModel.volume;
+                    fluid.fireSourcedChange(that.applier, "muted", true, "volume");
+                } else if (that.model.muted) {
+                    fluid.fireSourcedChange(that.applier, "muted", false, "volume");
+                }
             }
-        });
+        };
     };
 
-    var createVolumeMarkup = function (that) {
-        var volumeElt = $("<button class='flc-videoPlayer-controller-volume'/>");
-        volumeElt.addClass(that.options.styles.volume);
-        volumeElt.button({
-            "icons": {
-                primary: that.options.styles.buttonIcon
-            },
-            disabled: !that.model.states.canPlay,
-            label: that.options.strings.volume,
-            text: false
+    fluid.videoPlayer.volumeControls.bindModel = function (that) {
+        // Relay non-slider based volume changes to slider, and all volume changes to mute status
+        fluid.addSourceGuardedListener(that.applier, 
+            "volume", "slider", that.updateSlider);
+        that.applier.modelChanged.addListener("volume", 
+            fluid.videoPlayer.updateMuteStatus(that));
+            
+        that.applier.modelChanged.addListener("canPlay", function () {
+            that.locate("mute").attr("disabled", !that.model.canPlay);
         });
-        that.container.append(volumeElt);
-        var volumeControl = $("<div class='flc-videoPlayer-controller-volumeControl'/>");
+        
+        that.applier.modelChanged.addListener("muted", function (newModel, oldModel) {
+            // See updateVolume method for converse logic
+            if (oldModel.volume > 0) {
+                that.oldVolume = oldModel.volume;
+            }
+            var fromVolume = that.applier.hasChangeSource("volume");
+            if (!fromVolume) { 
+                var isMuting = newModel.muted;
+                if (isMuting) {
+                    // If this mute event was not already sourced from a volume change, fire volume to 0
+                    fluid.fireSourcedChange(that.applier, "volume", 0, "mute");
+                }
+                else {
+                    fluid.fireSourcedChange(that.applier, "volume", that.oldVolume, "mute");              
+                }
+            }
+        });  
+    };
+
+    fluid.videoPlayer.volumeControls.init = function (that) {
+        var volumeControl = that.locate("volumeControl");
         volumeControl.addClass(that.options.styles.volumeControl);
         volumeControl.slider({
             orientation: "vertical",
             range: "min",
-            min: 0,
-            max: 100,
-            value: that.model.states.volume
+            min: that.model.minVolume,
+            max: that.model.maxVolume,
+            value: that.model.volume
         });
-        volumeControl.find(".ui-slider-handle").attr({
+        // TODO: This in inherited. Do we need to add aria to sliders ourselves?
+        that.locate("handle").attr({
             "aria-label": that.options.strings.volume,
-            "aria-valuemin": 0,
-            "aria-valuemax": 100,
-            "aria-valuenow": that.model.states.volume,
-            "aria-valuetext": that.model.states.volume + "%",
+            "aria-valuemin": that.model.minVolume,
+            "aria-valuemax": that.model.maxVolume,
+            "aria-valuenow": that.model.volume,
+            "aria-valuetext": that.model.volume + "%",
             "role": "slider"
         });
-        volumeControl.hide();
-        that.container.append(volumeControl);
+
+        fluid.tabindex(that.container, 0);
+        fluid.tabindex(that.locate("mute"), -1);
+        fluid.tabindex(volumeControl, -1);
+        fluid.tabindex(that.locate("handle"), -1);
+
+        fluid.activatable(that.container, function (evt) {
+            that.muteButton.press();
+        }, {
+            additionalBindings: [{
+                key: $.ui.keyCode.UP,
+                activateHandler: function () {
+                    volumeControl.slider("value", volumeControl.slider("value") + 1);
+                    return false;
+                }
+            },{
+                key: $.ui.keyCode.DOWN,
+                activateHandler: function () {
+                    volumeControl.slider("value", volumeControl.slider("value") - 1);
+                    return false;
+                }
+            }]
+        });
     };
 
-    fluid.defaults("fluid.videoPlayer.controllers.volumeControl", {
+    fluid.defaults("fluid.videoPlayer.volumeControls", {
         gradeNames: ["fluid.viewComponent", "autoInit"],
-        finalInitFunction: "fluid.videoPlayer.controllers.volumeControl.finalInit",
-        preInitFunction: "fluid.videoPlayer.controllers.volumeControl.preInit",
+        postInitFunction: "fluid.videoPlayer.volumeControls.postInit",
+        finalInitFunction: "fluid.videoPlayer.volumeControls.finalInit",
         events: {
-            onReady: null,
-            onChange: null
+            onReady: null
         },
+        model: {
+            muted: false,
+            volume: 50,
+            minVolume: 0,
+            maxVolume: 100
+        },
+        unmuteVolume: 10,
         selectors: {
-            volume: ".flc-videoPlayer-controller-volume",
-            volumeControl: ".flc-videoPlayer-controller-volumeControl"
+            mute: ".flc-videoPlayer-mute",
+            volumeControl: ".flc-videoPlayer-volumeControl",
+            handle: ".ui-slider-handle"
         },
         styles: {
-            volume: "fl-videoPlayer-controller-volume",
-            volumeControl: "fl-videoPlayer-controller-volumeControl",
+            mute: "fl-videoPlayer-mute",
+            volumeControl: "fl-videoPlayer-volumeControl",
             buttonIcon: "ui-icon-signal"
         },
+        // TODO: Strings should be moved out into a single top-level bundle (FLUID-4590)
         strings: {
             volume: "Volume"
+        },
+        components: {
+            muteButton: {
+                type: "fluid.toggleButton",
+                options: {
+                    selectors: {
+                        button: ".flc-videoPlayer-mute"
+                    },
+                    styles: {
+                        init: "fl-videoPlayer-mute",
+                        pressed: "fl-videoPlayer-muted"
+                    },
+                    // TODO: Strings should be moved out into a single top-level bundle (FLUID-4590)
+                    strings: {
+                        press: "Mute",
+                        release: "Un-mute"
+                    },
+                    model: "{volumeControls}.model",
+                    applier: "{volumeControls}.applier",
+                    modelPath: "muted",
+                }
+            }
         }
     });
 
-    fluid.videoPlayer.controllers.volumeControl.preInit = function (that) {
-        
-        that.toggleSlider = function (ev) {
-            var volume = that.locate("volumeControl");
-            if (volume.css("display") !== "none") {
-                volume.hide();
-                that.locate("volume").focus();
-            } else {
-                //is there a more correct way?
-                volume.show().find(".ui-slider-handle").focus();
-            }
-        };
+    fluid.videoPlayer.volumeControls.postInit = function (that) {
+        that.options.components.muteButton.container = that.container;
+        that.oldVolume = that.options.unmuteVolume;
 
-        that.updateVolume = function () {
-            var volume = that.model.states.volume;
+        that.updateSlider = function () {
+            var volume = that.model.volume;
             var volumeControl = that.locate("volumeControl");
             volumeControl.slider("value", volume);
-            volumeControl.find(".ui-slider-handle").attr({
-                "aria-valuenow": that.model.states.volume,
-                "aria-valuetext": Math.round(that.model.states.volume) + "%"
+            that.locate("handle").attr({
+                "aria-valuenow": volume,
+                "aria-valuetext": Math.round(volume) + "%"
             });
         };
     };
 
-    fluid.videoPlayer.controllers.volumeControl.finalInit = function (that) {
-        createVolumeMarkup(that);
-        bindVolumeDOMEvents(that);
-        bindVolumeModel(that);
-        that.events.onReady.fire();
-    };
-
-    /********************************************************
-    * Menu: a menu to choose the caption and other options  *
-    *********************************************************/
-    var bindMenuDOMEvents = function (that) {
-        that.locate("menuButton").click(that.toggleMenu);
-        that.locate("helpButton").click(that.toggleHelp);
-        that.locate("help").mouseleave(that.toggleHelp);
-        that.locate("helpButton").focusout(that.hideHelp);
-        that.locate("captions").mouseleave(that.toggleMenu);
-    };
-
-    var bindMenuModel = function (that) {
-        that.applier.modelChanged.addListener("states.canPlay", function () {
-            if (that.model.states.canPlay === true) {
-                that.locate("menuButton").button("enable");
-                that.locate("helpButton").button("enable");
-            } else {
-                that.locate("menuButton").button("disable");
-                that.locate("helpButton").button("disable");
-            }
-        });
-    };
-
-    var createMenuMarkup = function (that) {
-        that.locate("menuButton").button({
-            icons: {
-                primary: that.options.styles.buttonIcon
-            },
-            disabled: !that.model.states.canPlay,
-            label: that.options.strings.menuButton,
-            text: false
-        });
-        
-        that.locate("helpButton").button({
-            icons: {
-                primary: that.options.styles.helpIcon
-            },
-            disabled: !that.model.states.canPlay,
-            label: that.options.strings.helpButton,
-            text: false        
-        });
-
-        that.locate("captions").hide();
-        that.locate("help").hide();
-        that.locate("element").buttonset();
-		that.locate("menu").fluid("selectable");
-    };
-
-    fluid.defaults("fluid.videoPlayer.controllers.menu", {
-        gradeNames: ["fluid.rendererComponent", "autoInit"],
-        finalInitFunction: "fluid.videoPlayer.controllers.menu.finalInit",
-        preInitFunction: "fluid.videoPlayer.controllers.menu.preInit",
-        events: {
-            onMenuReady: null
-        },
-        selectors: {
-            menuButton: ".flc-videoPlayer-controller-menu-button",
-            menu: ".flc-videoPlayer-controller-menu-container",
-            captions: ".flc-videoPlayer-controller-menu-captions",
-            title: ".flc-videoPlayer-controller-menu-title",
-            input: ".flc-videoPlayer-controller-menu-input",
-            element: ".flc-videoPlayer-controller-menu-element",
-            label: ".flc-videoPlayer-controller-menu-label",
-            helpButton: ".flc-videoPlayer-controller-menu-helpButton",
-            help: ".flc-videoPlayer-controller-menu-help"
-        },
-        styles: {
-            buttonIcon: "ui-icon-arrow",
-            helpIcon: "ui-icon-info"
-        },
-        strings: {
-            menuButton: "Subtitle selection Menu",
-            helpButton: "Help menu (keyboard shortcuts)",
-            help: "HELP"
-        },
-        rendererOptions: {
-            autoBind: true
-        },
-        repeatingSelectors: ["element"],
-        produceTree: "fluid.videoPlayer.controllers.menu.produceTree"
-    });
-
-    fluid.videoPlayer.controllers.menu.produceTree = function (that) {
-        var list = [];
-        for (var key in that.model.captions.sources) {
-            list.push(key);
-        }
-        return {
-            captions: {},
-            title: {},
-            menuButton: {},
-            menu: {},
-            expander: [{
-                type: "fluid.renderer.selection.inputs",
-                rowID: "element",
-                labelID: "label",
-                inputID: "input",
-                selectID: "caption",
-                tree: {
-                    "selection": "${captions.currentTrack}",
-                    "optionlist": list,
-                    "optionnames": list
-                }
-            }],
-            helpButton: {},
-            help: {}
-        };
-    };
-
-    fluid.videoPlayer.controllers.menu.preInit = function (that) {
-        that.toggleMenu = function () {
-            var menu = that.locate("captions");
-            menu.toggle();
-            if (menu.css("display") !== "none") {
-                that.locate("input").first().focus();
-            } else {
-                that.locate("menuButton").focus();
-            }
-        };
-        
-        that.toggleHelp = function () {
-            that.locate("help").toggle();
-        };
-        
-        that.hideHelp = function () {
-            that.locate("help").hide();
-        };
-    };
-
-    fluid.videoPlayer.controllers.menu.finalInit = function (that) {
-        that.refreshView();
-        createMenuMarkup(that);
-        bindMenuDOMEvents(that);
-        bindMenuModel(that);
-        that.events.onMenuReady.fire();
+    fluid.videoPlayer.volumeControls.finalInit = function (that) {
+        fluid.videoPlayer.volumeControls.init(that);
+        fluid.videoPlayer.volumeControls.bindDOMEvents(that);
+        fluid.videoPlayer.volumeControls.bindModel(that);
+        that.events.onReady.fire(that);
     };
 
 })(jQuery);
