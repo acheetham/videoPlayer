@@ -185,7 +185,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         onScrub: "{videoPlayer}.events.onScrub",
                         afterScrub: "{videoPlayer}.events.afterScrub",
                         onTranscriptsReady: "{videoPlayer}.events.canBindTranscriptMenu",
-                        onCaptionsReady: "{videoPlayer}.events.canBindCaptionMenu"
+                        onCaptionsReady: "{videoPlayer}.events.canBindCaptionMenu",
+                        onCaptionControlsRendered: "{videoPlayer}.events.onCaptionControlsRendered",
+                        onCaptionListUpdated: "{videoPlayer}.events.onCaptionListUpdated"
                     }
                 }
             },
@@ -199,6 +201,19 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     captions: "{videoPlayer}.options.video.captions",
                     events: {
                         onReady: "{videoPlayer}.events.onCaptionsReady"
+                    }
+                }
+            },
+            amara: {
+                type: "fluid.unisubComponent",
+                createOnEvent: "onReady",
+                options: {
+                    urls: {
+                        video: "{videoPlayer}.options.video.sources.0.src" // this is obviously only temporary
+                        // will likely need to pass all sources, and component will need to scan for youtube url
+                    },
+                    events: {
+                        modelReady: "{videoPlayer}.events.onAmaraCaptionsReady"
                     }
                 }
             }
@@ -221,6 +236,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             onTranscriptShow: null,
             onTranscriptElementChange: null,
             onReady: null,
+            onCaptionListUpdated: null,
             
             // public, time events
             onTimeChange: null,
@@ -230,6 +246,16 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             onCreateControllersReady: null,
             onCreateMediaReady: null,
             onHTML5BrowserDetected: null,
+            onAmaraCaptionsReady: null,
+            onAmaraCaptionsReadyBoiled: {
+                event: "onAmaraCaptionsReady",
+                args: ["{videoPlayer}", "{arguments}.0"]
+            },
+            onCaptionControlsRendered: null,
+            onCaptionControlsRenderedBoiled: {
+                event: "onCaptionControlsRendered",
+                args: ["{videoPlayer}", "{arguments}.0"]
+            },
 
             // private events used for associating menus with what they control via ARIA
             onTranscriptsReady: null,
@@ -298,7 +324,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fullscreen: false,
             volume: 60,
             muted: false,
-            canPlay: false
+            canPlay: false,
+            captionList: []
         },
         templates: {
             videoPlayer: {
@@ -531,6 +558,26 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     
     fluid.videoPlayer.finalInit = function (that) {
         that.container.attr("role", "application");
+
+        that.applier.modelChanged.addListener("captionList", function (newModel, oldModel, requestSpec) {
+            that.events.onCaptionListUpdated.fire();
+        });
+        that.events.onAmaraCaptionsReadyBoiled.addListener(function (that, captionData) {
+            var capList = fluid.copy(that.model.captionList);
+            fluid.each(captionData, function (cap, index) {
+                var lang = fluid.copy(cap);
+                capList.push({
+                    href: fluid.stringTemplate("http://www.universalsubtitles.org/en/videos/g2QoNQgjJd5y/%lang/%subtitleId/", {
+                        lang: cap.code,
+                        subtitleId: cap.id
+                    }),
+                    type: "text/amarajson",
+                    srclang: cap.code,
+                    label: cap.name
+                });
+            });
+            that.applier.requestChange("captionList", capList);
+        });
 
         // Render each media source with its custom renderer, registered by type.
         // If we aren't on an HTML 5 video-enabled browser, don't bother setting up the controller, captions or transcripts.

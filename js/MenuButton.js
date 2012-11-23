@@ -41,7 +41,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             onReady: null,
             activated: null,
             hiddenByKeyboard: null,
-            onControlledElementReady: null
+            onControlledElementReady: null,
+            onLanguageListUpdated: null
         },
         listeners: {
             onControlledElementReady: {
@@ -74,13 +75,12 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     // Ans: not very effectively... the renderer still needs to be burned to the ground
     fluid.videoPlayer.languageMenu.produceTree = function (that) {
         // Silly damn renderer with its crazy JSON idiolect!
-        that.model.languages = that.options.languages;
         var tree = {
             // create a menu item for each language in the model
             expander: {
                 type: "fluid.renderer.repeat",
                 repeatID: "language",
-                controlledBy: "languages",
+                controlledBy: "captionList",
                 pathAs: "lang",
                 tree: {
                     value: "${{lang}.label}",
@@ -209,6 +209,12 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         fluid.videoPlayer.languageMenu.bindEventListeners(that);
         fluid.videoPlayer.languageMenu.setUpKeyboardA11y(that);
 
+        that.events.onLanguageListUpdated.addListener(function () {
+            that.refreshView();
+            fluid.videoPlayer.languageMenu.bindEventListeners(that);
+            fluid.videoPlayer.languageMenu.setUpKeyboardA11y(that);
+        });
+
         that.container.attr("role", "menu");
         that.container.css("z-index", 9999);
         that.hideMenu();
@@ -235,7 +241,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         events: {
             onReady: null,
             onRenderingComplete: null,
-            onControlledElementReady: null
+            onControlledElementReady: null,
+            onLanguageListUpdated: null
         },
         languages: [],
         currentLanguagePath: "",
@@ -275,7 +282,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     currentLanguagePath: "{languageControls}.options.currentLanguagePath",
                     strings: "{languageControls}.options.strings",
                     events: {
-                        onControlledElementReady: "{languageControls}.events.onControlledElementReady"
+                        onControlledElementReady: "{languageControls}.events.onControlledElementReady",
+                        onLanguageListUpdated: "{languageControls}.events.onLanguageListUpdated"
                     }
                 }
             },
