@@ -517,6 +517,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 document.attachEvent(key, turnoffFullScreen);
             }
         });
+
+        that.model.captionList = that.options.video.captions;
     };
 
     fluid.videoPlayer.postInit = function (that) {
