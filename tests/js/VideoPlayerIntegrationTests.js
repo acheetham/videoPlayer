@@ -50,7 +50,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fluid.videoPlayer.testPlayButton = function (that) {
                 // Play button plays and pauses video
                 var playButton = $(".flc-videoPlayer-play");
-                var clickFunc = function () { playButton.click() };
+                var clickFunc = function () { playButton.click(); };
                 
                 testPlayPause(clickFunc);
             };
@@ -70,7 +70,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fluid.videoPlayer.testContainerClick = function (that) {
                 // Clicking on video container plays and pauses video
                 var videoPlayerContainer = $(".flc-videoPlayer-video-container");
-                var clickFunc = function () { videoPlayerContainer.mousedown() };
+                var clickFunc = function () { videoPlayerContainer.mousedown(); };
                 
                 testPlayPause(clickFunc);
             };
@@ -202,6 +202,57 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     }
                 };
             
+            fluid.testUtils.initVideoPlayer(".videoPlayer-transcript", testOpts);
+        });
+
+        videoPlayerIntegrationTests.asyncTest("Auto-fetch of amara captions disabled", function () {
+            jqUnit.expect(1);
+            var testOpts = {
+                listeners: {
+                    onReady: function (vp, languageMenu) {
+                        jqUnit.assertEquals("Language menu doesn't contain amara captions",
+                            fluid.testUtils.baseOpts.video.captions.length,
+                            $(".flc-videoPlayer-captions-languageMenu .flc-videoPlayer-language").length);
+                        start();
+                    }
+                },
+                video: {
+                    sources: [{
+                        // this caption is known to have two amara captions: French and English
+                        src: "http://www.youtube.com/v/_VxQEPw1x9E",
+                        type: "youtube"
+                    }]
+                },
+                queryAmaraForCaptions: false
+            };
+            fluid.testUtils.initVideoPlayer(".videoPlayer-transcript", testOpts);
+        });
+
+        videoPlayerIntegrationTests.asyncTest("Auto-fetch of amara captions enabled", function () {
+            jqUnit.expect(1);
+            var testOpts = {
+                listeners: {
+                    onAmaraCaptionsReadyBoiled: {
+                        priority: "first",
+                        listener: function (vp, captionData) {
+                            vp.events.onCaptionControlsRenderedBoiled.addListener(function (vp, languageMenu) {
+                                jqUnit.assertEquals("Language menu contains amara captions",
+                                    fluid.testUtils.baseOpts.video.captions.length + 2,
+                                    $(".flc-videoPlayer-captions-languageMenu .flc-videoPlayer-language").length);
+                                start();
+                            });
+                        }
+                    }
+                },
+                video: {
+                    sources: [{
+                        // this caption is known to have two amara captions: French and English
+                        src: "http://www.youtube.com/v/_VxQEPw1x9E",
+                        type: "youtube"
+                    }]
+                },
+                queryAmaraForCaptions: true
+            };
             fluid.testUtils.initVideoPlayer(".videoPlayer-transcript", testOpts);
         });
 

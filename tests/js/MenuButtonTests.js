@@ -29,22 +29,22 @@ fluid.registerNamespace("fluid.tests");
         fluid.tests.languageMenuDefaults = fluid.defaults("fluid.videoPlayer.languageMenu");
 
         var baseMenuOpts = {
-            languages: [{
-                srclang: "klingon",
-                label: "Klingo√±"
-            }, {
-                srclang: "esperanto",
-                label: "Esp√©ranto"
-            }, {
-                srclang: "lolspeak",
-                label: "LOLspeak"
-            }, {
-                srclang: "elvish",
-                label: "Elv√Æsh"
-            }],
             model: {
                 activeLanguages: [0],
-                showLanguage: false
+                showLanguage: false,
+                languageList: [{
+                    srclang: "klingon",
+                    label: "Klingo√±"
+                }, {
+                    srclang: "esperanto",
+                    label: "Esp√©ranto"
+                }, {
+                    srclang: "lolspeak",
+                    label: "LOLspeak"
+                }, {
+                    srclang: "elvish",
+                    label: "Elv√Æsh"
+                }]
             }
         };
 
@@ -73,7 +73,7 @@ fluid.registerNamespace("fluid.tests");
         };
 
         menuButtonTests.asyncTest("Language Menu: Default configuration", function () {
-            var numLangs = baseMenuOpts.languages.length;
+            var numLangs = baseMenuOpts.model.languageList.length;
             jqUnit.expect(9);
             var testMenu = fluid.tests.initMenu({
                 listeners: {
@@ -116,7 +116,7 @@ fluid.registerNamespace("fluid.tests");
         });
 
         menuButtonTests.asyncTest("Language Menu: Custom 'show/hide' option strings", function () {
-            var numLangs = baseMenuOpts.languages.length;
+            var numLangs = baseMenuOpts.model.languageList.length;
             jqUnit.expect(2);
             var testStrings = {
                 showLanguage: "No one is talking",
@@ -142,24 +142,24 @@ fluid.registerNamespace("fluid.tests");
          *=======================*/
 
         var baseLanguageControlsOpts = {
-            languages: [{
-                srclang: "klingon",
-                label: "Klingoñ"
-            }, {
-                srclang: "esperanto",
-                label: "Espéranto"
-            }, {
-                srclang: "lolspeak",
-                label: "LOLspeak"
-            }, {
-                srclang: "elvish",
-                label: "Elvîsh"
-            }],
             model: {
                 currentTracks: {
                     captions: [0]
                 },
-                displayCaptions: false
+                displayCaptions: false,
+                languageList: [{
+                    srclang: "klingon",
+                    label: "Klingoñ"
+                }, {
+                    srclang: "esperanto",
+                    label: "Espéranto"
+                }, {
+                    srclang: "lolspeak",
+                    label: "LOLspeak"
+                }, {
+                    srclang: "elvish",
+                    label: "Elvîsh"
+                }]
             },
             currentLanguagePath: "currentTracks.captions",
             showHidePath: "displayCaptions"
@@ -172,7 +172,7 @@ fluid.registerNamespace("fluid.tests");
         };
 
         menuButtonTests.asyncTest("Language Controls: default functionality", function () {
-            var numLangs = baseLanguageControlsOpts.languages.length;
+            var numLangs = baseLanguageControlsOpts.model.languageList.length;
             var testControls = fluid.tests.initLangControls({
                 listeners: {
                     onReady: {

@@ -33,7 +33,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         postInitFunction: "fluid.videoPlayer.languageMenu.postInit",
         finalInitFunction: "fluid.videoPlayer.languageMenu.finalInit",
         produceTree: "fluid.videoPlayer.languageMenu.produceTree",
-        languages: [],
         currentLanguagePath: "activeLanguages",
         showHidePath: "showLanguage",
         model: {},
@@ -80,7 +79,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             expander: {
                 type: "fluid.renderer.repeat",
                 repeatID: "language",
-                controlledBy: "captionList",
+                controlledBy: "languageList",
                 pathAs: "lang",
                 tree: {
                     value: "${{lang}.label}",
@@ -242,9 +241,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             onReady: null,
             onRenderingComplete: null,
             onControlledElementReady: null,
-            onLanguageListUpdated: null
+            onLanguageListUpdated: null,
+
+            // private event for testing
+            afterMenuRender: null
         },
-        languages: [],
         currentLanguagePath: "",
         showHidePath: "",
         strings: {
@@ -276,7 +277,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 container: "{languageControls}.dom.menu",
                 options: {
                     model: "{languageControls}.model",
-                    languages: "{languageControls}.options.languages",
                     applier: "{languageControls}.applier",
                     showHidePath: "{languageControls}.options.showHidePath",
                     currentLanguagePath: "{languageControls}.options.currentLanguagePath",
@@ -364,7 +364,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.defaults("fluid.videoPlayer.languageControls.eventBinder", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         listeners: {
-            "{button}.events.onPress": "{menu}.toggleView"
+            "{button}.events.onPress": "{menu}.toggleView",
+            "{menu}.events.afterRender": "{languageControls}.events.afterMenuRender.fire"
         }
     });
 })(jQuery);

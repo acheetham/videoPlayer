@@ -85,7 +85,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     },
                     events: {
                         onControlledElementReady: "{controllers}.events.onCaptionsReady",
-                        onRenderingComplete: "{controllers}.events.onCaptionControlsRendered",
+                        afterMenuRender: "{controllers}.events.onCaptionControlsRendered",
                         onLanguageListUpdated: "{controllers}.events.onCaptionListUpdated"
                     }
                 }
@@ -170,8 +170,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             onTimeChange: null,
             afterTimeChange: null,
             onMarkupReady: null,
-            onCaptionControlsRendered: null,
             onCaptionListUpdated: null,
+
+            // private event used for testing
+            onCaptionControlsRendered: null,
 
             // private event used for associating transcript menu with transcript via ARIA
             onTranscriptsReady: null,

@@ -214,7 +214,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     },
                     events: {
                         modelReady: "{videoPlayer}.events.onAmaraCaptionsReady"
-                    }
+                    },
+                    queryAmaraForCaptions: "{videoPlayer}.options.queryAmaraForCaptions"
                 }
             }
         },
@@ -251,6 +252,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 event: "onAmaraCaptionsReady",
                 args: ["{videoPlayer}", "{arguments}.0"]
             },
+
+            // private events used for testing
             onCaptionControlsRendered: null,
             onCaptionControlsRenderedBoiled: {
                 event: "onCaptionControlsRendered",
@@ -325,7 +328,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             volume: 60,
             muted: false,
             canPlay: false,
-            captionList: []
+            languageList: []
         },
         templates: {
             videoPlayer: {
@@ -333,7 +336,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 href: "../html/videoPlayer_template.html"
             }
         },
-        videoTitle: "unnamed video"
+        videoTitle: "unnamed video",
+        queryAmaraForCaptions: true
     });
 
     var bindKeyboardControl = function (that) {
@@ -518,7 +522,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             }
         });
 
-        that.model.captionList = that.options.video.captions;
+        that.model.languageList = that.options.video.captions;
     };
 
     fluid.videoPlayer.postInit = function (that) {
@@ -561,11 +565,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.videoPlayer.finalInit = function (that) {
         that.container.attr("role", "application");
 
-        that.applier.modelChanged.addListener("captionList", function (newModel, oldModel, requestSpec) {
+        that.applier.modelChanged.addListener("languageList", function (newModel, oldModel, requestSpec) {
             that.events.onCaptionListUpdated.fire();
         });
         that.events.onAmaraCaptionsReadyBoiled.addListener(function (that, captionData) {
-            var capList = fluid.copy(that.model.captionList);
+            var capList = fluid.copy(that.model.languageList);
             fluid.each(captionData, function (cap, index) {
                 var lang = fluid.copy(cap);
                 capList.push({
@@ -578,7 +582,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     label: cap.name
                 });
             });
-            that.applier.requestChange("captionList", capList);
+            that.applier.requestChange("languageList", capList);
         });
 
         // Render each media source with its custom renderer, registered by type.

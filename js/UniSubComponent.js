@@ -41,7 +41,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             apiLanguages: "http://www.universalsubtitles.org/api/1.0/subtitles/languages/",
             apiVideo: "http://www.universalsubtitles.org/api/1.0/video/",
             video: null
-        }
+        },
+        queryAmaraForCaptions: true
     });
     
     fluid.unisubComponent.preInit = function (that) {
@@ -76,6 +77,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     };
     
     fluid.unisubComponent.finalInit = function (that) {
+        if (!that.options.queryAmaraForCaptions) {
+            return;
+        }
         that.loadVideoMetaData({
             url: that.buildUrl(that.options.urls.apiVideo, {
                 username: that.options["api-username"],
