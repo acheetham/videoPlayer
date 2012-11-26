@@ -43,7 +43,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fluid.merge(null, options, {
                 listeners: {
                     onReady: onReadyCallback
-                }
+                },
+                queryAmaraForCaptions: false
             });
 
             return fluid.videoPlayer(container, options);
