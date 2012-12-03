@@ -45,15 +45,19 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         queryAmaraForCaptions: true
     });
     
+    var languageList = [];
     fluid.unisubComponent.preInit = function (that) {
         that.onVideoHandler = function (options) {
             $.ajax({
                 dataType: "jsonp",
                 url: options.url
             }).done(function (data) {
-                that.applier.requestChange("languages", data);
-                that.events.modelReady.fire(data);
-                that.events.onReady.fire(that);
+                languageList = languageList.concat(data);
+                if (--videoCount <= 0) {
+                    that.applier.requestChange("languages", languageList);
+                    that.events.modelReady.fire(languageList);
+                    that.events.onReady.fire(that);
+                }
             });
         };
 
@@ -65,7 +69,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 that.applier.requestChange("video", data);
                 that.events.onVideo.fire({
                     url: that.buildUrl(that.options.urls.apiLanguages, {
-                        video_url: that.options.urls.video
+                        video_url: data.video_url
                     })
                 });
             });
@@ -76,16 +80,30 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         };
     };
     
+    var videoCount;
     fluid.unisubComponent.finalInit = function (that) {
-        if (!that.options.queryAmaraForCaptions) {
+        if (!that.options.queryAmaraForCaptions || !that.options.urls.video) {
             return;
         }
-        that.loadVideoMetaData({
-            url: that.buildUrl(that.options.urls.apiVideo, {
-                username: that.options["api-username"],
-                password: that.options["api-password"],
-                video_url: that.options.urls.video
-            })
+
+        var videoUrlsArray = [];
+        if (typeof that.options.urls.video[0] === "string") {
+            videoUrlsArray = fluid.makeArray(that.options.urls.video);
+        } else {
+            fluid.each(that.options.urls.video, function (vid, index) {
+                videoUrlsArray[index] = vid.src;
+            });
+        }
+
+        videoCount = videoUrlsArray.length;
+        fluid.each(videoUrlsArray, function (vidUrl, index) {
+            that.loadVideoMetaData({
+                url: that.buildUrl(that.options.urls.apiVideo, {
+                    username: that.options["api-username"],
+                    password: that.options["api-password"],
+                    video_url: vidUrl
+                })
+            });
         });
     };
 
