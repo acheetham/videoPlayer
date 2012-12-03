@@ -209,8 +209,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 createOnEvent: "onReady",
                 options: {
                     urls: {
-                        video: "{videoPlayer}.options.video.sources.0.src" // this is obviously only temporary
-                        // will likely need to pass all sources, and component will need to scan for youtube url
+                        video: "{videoPlayer}.options.video.sources"
                     },
                     events: {
                         modelReady: "{videoPlayer}.events.onAmaraCaptionsReady"

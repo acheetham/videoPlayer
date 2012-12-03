@@ -45,17 +45,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         queryAmaraForCaptions: true
     });
     
-    var languageList = [];
     fluid.unisubComponent.preInit = function (that) {
+        that.languageList = [];
+        that.videoCount = 0;
         that.onVideoHandler = function (options) {
             $.ajax({
                 dataType: "jsonp",
                 url: options.url
             }).done(function (data) {
-                languageList = languageList.concat(data);
-                if (--videoCount <= 0) {
-                    that.applier.requestChange("languages", languageList);
-                    that.events.modelReady.fire(languageList);
+                that.languageList = that.languageList.concat(data);
+                if (--that.videoCount <= 0) {
+                    that.applier.requestChange("languages", that.languageList);
+                    that.events.modelReady.fire(that.languageList);
                     that.events.onReady.fire(that);
                 }
             });
@@ -80,7 +81,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         };
     };
     
-    var videoCount;
     fluid.unisubComponent.finalInit = function (that) {
         if (!that.options.queryAmaraForCaptions || !that.options.urls.video) {
             return;
@@ -95,16 +95,24 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             });
         }
 
-        videoCount = videoUrlsArray.length;
+        that.videoCount = videoUrlsArray.length;
         fluid.each(videoUrlsArray, function (vidUrl, index) {
-            that.loadVideoMetaData({
-                url: that.buildUrl(that.options.urls.apiVideo, {
-                    username: that.options["api-username"],
-                    password: that.options["api-password"],
-                    video_url: vidUrl
-                })
-            });
+            if (vidUrl.substr(0, 7) === "http://") {
+                that.loadVideoMetaData({
+                    url: that.buildUrl(that.options.urls.apiVideo, {
+                        username: that.options["api-username"],
+                        password: that.options["api-password"],
+                        video_url: vidUrl
+                    })
+                });
+            } else {
+                that.videoCount--;
+            }
         });
+        if (that.videoCount <= 0) {
+            that.events.modelReady.fire(that.languageList);
+            that.events.onReady.fire(that);
+        }
     };
 
 })(jQuery);

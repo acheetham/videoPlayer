@@ -23,6 +23,7 @@ fluid.registerNamespace("fluid.tests");
         var uniSubComponentTests = new jqUnit.TestCase("UniSubComponent Tests");
 
         uniSubComponentTests.asyncTest("Single video (url as string), no captions", function () {
+            jqUnit.expect(1);
             var usc = fluid.unisubComponent({
                 urls: {
                     video: "http://build.fluidproject.org/videoPlayer/videoPlayer/demos/videos/ReorganizeFuture/ReorganizeFuture.webm"
@@ -38,6 +39,7 @@ fluid.registerNamespace("fluid.tests");
         });
 
         uniSubComponentTests.asyncTest("Single video (url as string), two captions", function () {
+            jqUnit.expect(1);
             var usc = fluid.unisubComponent({
                 urls: {
                     video: "http://www.youtube.com/v/_VxQEPw1x9E" /* "A chance to reorganize our future?", two captions */
@@ -52,6 +54,7 @@ fluid.registerNamespace("fluid.tests");
         });
 
         uniSubComponentTests.asyncTest("Single video as array (urls as string), two captions", function () {
+            jqUnit.expect(1);
             var usc = fluid.unisubComponent({
                 urls: {
                     video: ["http://www.youtube.com/v/_VxQEPw1x9E"] /* "A chance to reorganize our future?", two captions */
@@ -66,6 +69,7 @@ fluid.registerNamespace("fluid.tests");
         });
 
         uniSubComponentTests.asyncTest("Multiple videos (urls as strings), multiple captions", function () {
+            jqUnit.expect(1);
             var usc = fluid.unisubComponent({
                 urls: {
                     video: [
@@ -83,6 +87,7 @@ fluid.registerNamespace("fluid.tests");
         });
 
         uniSubComponentTests.asyncTest("Multiple videos (urls as src properties), multiple captions", function () {
+            jqUnit.expect(1);
             var usc = fluid.unisubComponent({
                 urls: {
                     video: [
@@ -99,5 +104,40 @@ fluid.registerNamespace("fluid.tests");
             });
         });
 
+        uniSubComponentTests.asyncTest("Non-http video URLs", function () {
+            jqUnit.expect(1);
+            var usc = fluid.unisubComponent({
+                urls: {
+                    video: [
+                        {src:"../../demos/videos/ReorganizeFuture/ReorganizeFuture.webm"},
+                        {src:"../../demos/videos/ReorganizeFuture/ReorganizeFuture.mp4"}
+                       ]
+                },
+                listeners: {
+                    modelReady: function (data) {
+                        jqUnit.assertEquals("No captions were found", 0, data.length);
+                        start();
+                    }
+                }
+            });
+        });
+
+        uniSubComponentTests.asyncTest("Mixed video URLs", function () {
+            jqUnit.expect(1);
+            var usc = fluid.unisubComponent({
+                urls: {
+                    video: [
+                        {src:"http://www.youtube.com/v/_VxQEPw1x9E"}, /* "A chance to reorganize our future?", two captions */
+                        {src:"../../demos/videos/ReorganizeFuture/ReorganizeFuture.mp4"}
+                       ]
+                },
+                listeners: {
+                    modelReady: function (data) {
+                        jqUnit.assertTrue("Two (or more) captions were found", data.length >= 2);
+                        start();
+                    }
+                }
+            });
+        });
     });
 })(jQuery);
