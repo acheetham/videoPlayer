@@ -568,6 +568,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             that.events.onCaptionListUpdated.fire();
         });
         that.events.onAmaraCaptionsReadyBoiled.addListener(function (that, captionData) {
+
+/*
             var capList = fluid.copy(that.model.languageList);
             fluid.each(captionData, function (cap, index) {
                 var lang = fluid.copy(cap);
@@ -581,6 +583,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                     label: cap.name
                 });
             });
+*/
+            var capList = fluid.copy(that.model.languageList).concat(captionData);
             that.applier.requestChange("languageList", capList);
         });
 

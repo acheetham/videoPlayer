@@ -42,6 +42,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             apiVideo: "http://www.universalsubtitles.org/api/1.0/video/",
             video: null
         },
+        hrefTemplate: "http://www.universalsubtitles.org/en/videos/g2QoNQgjJd5y/%lang/%subtitleId/",
         queryAmaraForCaptions: true
     });
     
@@ -53,7 +54,22 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 dataType: "jsonp",
                 url: options.url
             }).done(function (data) {
-                that.languageList = that.languageList.concat(data);
+//                that.languageList = that.languageList.concat(data);
+
+                fluid.each(data, function (capSpec, index) {
+                    that.languageList = that.languageList.concat({
+                        // BROKEN: this is the wrong url: this is the url to the actual subtitles,
+                        // but the video player just needs the right url to the video itself
+                        src: fluid.stringTemplate(that.options.hrefTemplate, {
+                            lang: capSpec.code,
+                            subtitleId: capSpec.id
+                        }),
+                        type: "text/amarajson",
+                        srclang: capSpec.code,
+                        label: capSpec.name
+                    });
+                });
+
                 if (--that.videoCount <= 0) {
                     that.applier.requestChange("languages", that.languageList);
                     that.events.modelReady.fire(that.languageList);
