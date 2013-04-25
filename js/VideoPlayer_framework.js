@@ -1,5 +1,5 @@
 /*
-Copyright 2012 OCAD University
+Copyright 2012-2013 OCAD University
 
 Licensed under the Educational Community License (ECL), Version 2.0 or the New
 BSD license. You may not use this file except in compliance with one these
@@ -9,7 +9,7 @@ You may obtain a copy of the ECL 2.0 License and BSD License at
 https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 */
 
-/*global jQuery, window, fluid_1_5*/
+/*global jQuery, window, fluid_1_5:true*/
 
 // JSLint options 
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
@@ -58,23 +58,21 @@ var fluid_1_5 = fluid_1_5 || {};
         // sourceApplier [required]
     });
     
-    fluid.modelRelay.registerTarget = function(that, target) {
-        var specListeners = fluid.transform(that.options.rules, function(value, key) {
+    fluid.modelRelay.registerTarget = function (that, target) {
+        var specListeners = fluid.transform(that.options.rules, function (value, key) {
             var listener = function (newModel, oldModel, changeList) {
                 var newValue = fluid.get(newModel, key);
-                if (typeof(value) === "string") {
+                if (typeof (value) === "string") {
                     target.applier.requestChange(value, newValue);
                 } else {
-                    var fullargs = [newValue, key, target, changeList]
+                    var fullargs = [newValue, key, target, changeList];
                     if (value.lens) {
                         var transformed = value.lens.transform.apply(null, [newValue, key]);
                         target.applier.requestChange(value.targetPath, newValue);
-                    }
-                    else if (target !== that) {
+                    } else if (target !== that) {
                         var changes = value.func.apply(null, fullargs);
                         fluid.requestChanges(target.applier, changes);
-                    }
-                    else {
+                    } else {
                         // Do not apply irreversible/general operations to the modelRelay's own model
                         // instead, replay the original changes into the "pent model" reach to be
                         // transformed later
@@ -83,11 +81,11 @@ var fluid_1_5 = fluid_1_5 || {};
                 }   
             };
             that.options.sourceApplier.modelChanged.addListener(key, listener);
-            return value.func? listener: null;
+            return value.func ? listener : null;
         });
         // Replay any pent-up changes into a new genuine target 
         if (target !== that) {
-            fluid.each(that.options.rules, function(value, key) {
+            fluid.each(that.options.rules, function (value, key) {
                 if (value.func) {
                     var newValue = fluid.get(that.pentModel, key);
                     // synthetic change summarising ultimate individual effect of pent change
@@ -100,42 +98,41 @@ var fluid_1_5 = fluid_1_5 || {};
         }
     };
     
-    fluid.modelRelay.processLookup = function(struct, member, relayType, key, expectedType) {
+    fluid.modelRelay.processLookup = function (struct, member, relayType, key, expectedType) {
         var func = struct[member];
         if (!func) {
             fluid.fail("Relay rule " + key + " requires a " + relayType + " to be specified");
         }
-        if (typeof(func) === "string") {
+        if (typeof (func) === "string") {
             var funcval = fluid.getGlobalValue(func);
-            if (typeof(funcval) !== expectedType) {
+            if (typeof (funcval) !== expectedType) {
                 fluid.fail("Relay func " + func + " could not be looked up to " + expectedType + " function for rule " + key); 
             }
             struct[member] = funcval;
         }
     };
     
-    fluid.modelRelay.postInit = function(that) {
+    fluid.modelRelay.postInit = function (that) {
         that.targets = {};
         // This is used for holding pent up changes produced by irreversible transforms - it holds
         // the raw changes which would be destined for the model, ready to be re-transformed
         that.pentModel = {};
         that.pentApplier = fluid.makeChangeApplier(that.pentModel);
-        that.addTarget = function(target) {
+        that.addTarget = function (target) {
             fluid.modelRelay.registerTarget(that, target);
             that.targets[target.id] = target;
         };
-        fluid.each(that.options.rules, function(value, key) {
-            if (typeof(value) !== "string") {
+        fluid.each(that.options.rules, function (value, key) {
+            if (typeof (value) !== "string") {
                 if (value.targetPath) {
                     // replace this crude system with IoC later
                     fluid.modelRelay.processLookup(value, "lens", "lens", key, "object");
-                }
-                else {
+                } else {
                     fluid.modelRelay.processLookup(value, "func", "relay func", key, "function");
                 }
             }
         });
-        fluid.each(that.options.targets, function(target) {
+        fluid.each(that.options.targets, function (target) {
             fluid.modelRelay.registerTarget(that, target);
         });
         fluid.modelRelay.registerTarget(that, that);
@@ -156,18 +153,18 @@ var fluid_1_5 = fluid_1_5 || {};
         postInitFunction: "fluid.scaleLens.postInit"
     });
     
-    fluid.scaleLens.postInit = function(that) {
-        that.transform = function(value) {
+    fluid.scaleLens.postInit = function (that) {
+        that.transform = function (value) {
             return value * that.options.scaleFactor; 
         };
-        that.reverseTransform = function(value) {
+        that.reverseTransform = function (value) {
             return value / that.options.scaleFactor;
         };
     };
     
 
 // TODO: move into DataBinding
-    fluid.linearRangeGuard = function(min, max) {
+    fluid.linearRangeGuard = function (min, max) {
         return function (model, changeRequest, applier) {
             var newValue = changeRequest.value;
     
@@ -177,7 +174,7 @@ var fluid_1_5 = fluid_1_5 || {};
                 newValue = max;
             }
             changeRequest.value = newValue;
-        }
+        };
     };
 
 
@@ -190,13 +187,13 @@ var fluid_1_5 = fluid_1_5 || {};
         preInitFunction: "fluid.videoPlayer.makeIndirectReader"
     });
     
-    fluid.videoPlayer.makeIndirectReader = function(that) {
-         that.readIndirect = function(pathName) {
-             return fluid.get(that.model, fluid.get(that.options, pathName));
-         };
-         that.writeIndirect = function(pathName, value, source) {
-             fluid.fireSourcedChange(that.applier, fluid.get(that.options, pathName), value, source);
-         };
+    fluid.videoPlayer.makeIndirectReader = function (that) {
+        that.readIndirect = function (pathName) {
+            return fluid.get(that.model, fluid.get(that.options, pathName));
+        };
+        that.writeIndirect = function (pathName, value, source) {
+            fluid.fireSourcedChange(that.applier, fluid.get(that.options, pathName), value, source);
+        };
     };
     
     

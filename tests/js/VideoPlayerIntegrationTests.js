@@ -365,9 +365,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         };
         
         var subtitlesFinderOpts = [{
-           desc: "Check that menus are updated after subtitlesFinder updates language list with a delayed service which happens after menu was rendered",
-           async: true,
-           testFn: integrationSubtitlesFinderDelayedService
+            desc: "Check that menus are updated after subtitlesFinder updates language list with a delayed service which happens after menu was rendered",
+            async: true,
+            testFn: integrationSubtitlesFinderDelayedService
         }];
         fluid.testUtils.testCaseWithEnv("Video Player SubtitlesFinder integration test. ", subtitlesFinderOpts, ["fluid.browser.nativeVideoSupport"]);
 

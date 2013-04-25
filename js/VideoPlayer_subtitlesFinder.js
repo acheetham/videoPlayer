@@ -1,5 +1,5 @@
 /*
-Copyright 2012 OCAD University
+Copyright 2013 OCAD University
 
 Licensed under the Educational Community License (ECL), Version 2.0 or the New
 BSD license. You may not use this file except in compliance with one these
@@ -102,7 +102,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.subtitlesFinder.createLanguageObject = function (language, videoUrl) {
         return {
             // This is to comply with current VP caption format
-            src: [videoUrl, "&", $.param( {"language": language.code} )].join(""),
+            src: [videoUrl, "&", $.param({"language": language.code})].join(""),
             // Amara 2.0 caption link
             // src: language.subtitles_uri
             type: "text/amarajson",
