@@ -309,6 +309,10 @@ var fluid_1_5 = fluid_1_5 || {};
             captions: [],
             transcripts: []
         },
+        mergePolicy: {
+            "model.captions": "video.captions",
+            "model.transcripts": "video.transcripts"
+        },
         templates: {
             videoPlayer: {
                 forceCache: true,
@@ -492,11 +496,6 @@ var fluid_1_5 = fluid_1_5 || {};
             that.applier.requestChange("fullscreen", !that.model.fullscreen);
         };
         
-        // This is the place when we move integrator specified captions and transcripts into the model of a VideoPlayer
-        // This model could be potentially extended by some other components like subtitlesFinder
-        // Also we agreed on keeping things simple for an integrator where an integrator lists options without touching videoPlayer model.
-        that.model.captions = fluid.copy(that.options.video.captions);
-        that.model.transcripts = fluid.copy(that.options.video.transcripts);
     };
 
     fluid.videoPlayer.postInit = function (that) {

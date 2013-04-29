@@ -236,7 +236,8 @@ fluid.registerNamespace("fluid.tests");
                     onCreate: function (that) {
                         var urlPath = "params.video_url",
                             url = fluid.get(that.dataSource.model, urlPath);
-                        jqUnit.assertEquals("Url is proper", url, "file:///Users/alexn/Documents/github/videoPlayer/tests/html/my_video.mp4");
+                        var expected = window.location.protocol + "//" + window.location.host + "/videoPlayer/tests/html/my_video.mp4"
+                        jqUnit.assertEquals("Url is proper", url, expected);
                         jqUnit.start();
                     }
                 }
