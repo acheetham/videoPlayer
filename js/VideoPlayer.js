@@ -489,7 +489,7 @@ var fluid_1_5 = fluid_1_5 || {};
 
     fluid.videoPlayer.preInit = function (that) {
         fluid.each(that.options.defaultKinds, function (defaultKind, index) {
-            fluid.videoPlayer.addDefaultKind(fluid.get(that.options.video, index), defaultKind);  
+            fluid.videoPlayer.addDefaultKind(fluid.get(that.model, index), defaultKind);
         });
         
         that.toggleFullscreen = function () {
