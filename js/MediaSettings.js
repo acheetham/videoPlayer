@@ -219,6 +219,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     });
     fluid.demands("fluid.uiOptions.fatPanel", ["fluid.addMediaPanels"], {
         options: {
+            components: {
+                relay: {
+                    type: "fluid.videoPlayer.relay"
+                }
+            },
             outerEnhancerOptions: {
                 defaultSiteSettings: extraSettings
             }

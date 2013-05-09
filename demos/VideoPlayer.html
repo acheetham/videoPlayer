@@ -43,6 +43,7 @@
         <script type="text/javascript" src="../js/VideoPlayer_media.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer_transcript.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer_intervalEventsConductor.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_uiOptions.js"></script>
 
         </head>
     <body>
@@ -70,10 +71,15 @@
         </div>
 
         <script>
-            fluid.uiOptions.fatPanel(".flc-uiOptions", {
+            var uiOptions = fluid.uiOptions.fatPanel(".flc-uiOptions", {
                 gradeNames: ["fluid.uiOptions.transformDefaultPanelsOptions"],
                 // Tell UIOptions where to find all the templates, relative to this file
                 prefix: "../lib/infusion/components/uiOptions/html/",
+                components: {
+                    relay: {
+                        type: "fluid.videoPlayer.relay"
+                    }
+                },
                 templateLoader: {
                     options: {
                         gradeNames: ["fluid.uiOptions.defaultTemplateLoader"]
@@ -85,28 +91,6 @@
                     }
                 }
             });
-
-/*
-            var uiOptions = fluid.uiOptions.fatPanel(".flc-uiOptions", {
-                prefix: "../lib/infusion/components/uiOptions/html/",
-*/
-/*
-                components: {
-                    relay: {
-                        type: "fluid.videoPlayer.relay"
-                    }
-                },
-*/
-/*
-                templateLoader: {
-                    options: {
-                        templates: {
-                            mediaControls: "../html/UIOptionsTemplate-media.html"
-                        }
-                    }
-                }
-            });
-*/
 
             var vpOptions = {
                 video: {
@@ -161,8 +145,8 @@
                 videoTitle: "A chance to reorganize our future?"
             };
             var videoOptions = {container: ".videoPlayer", options: vpOptions};
-//            fluid.videoPlayer.makeEnhancedInstances(videoOptions, uiOptions.relay);
-            fluid.videoPlayer(".videoPlayer", vpOptions);
+            fluid.videoPlayer.makeEnhancedInstances(videoOptions, uiOptions.relay);
+//            fluid.videoPlayer(".videoPlayer", vpOptions);
         </script>
     </body>
 </html>

@@ -19,7 +19,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 (function ($) {
     $(document).ready(function () {
 
-        var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions", {
+        fluid.staticEnvironment.uiOptionsTest = fluid.typeTag("fluid.tests.uiOptions");
+        fluid.demands("fluid.uiOptions.templateLoader", ["fluid.addMediaPanels", "fluid.tests.uiOptions"], {
+            options: {
+                templates: {
+                    uiOptions: "../../html/FatPanelUIOptions.html",
+                    captionsSettings: "../../html/CaptionsPanelTemplate.html",
+                    transcriptsSettings: "../../html/TranscriptsPanelTemplate.html"
+                 }
+            }
+        });
+        var uiOptions = fluid.uiOptions.fatPanel(".flc-uiOptions", {
+            gradeNames: ["fluid.uiOptions.transformDefaultPanelsOptions"],
             prefix: "../../lib/infusion/components/uiOptions/html/",
             components: {
                 relay: {
@@ -28,9 +39,12 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             },
             templateLoader: {
                 options: {
-                    templates: {
-                        mediaControls: "../../html/UIOptionsTemplate-media.html"
-                    }
+                    gradeNames: ["fluid.uiOptions.defaultTemplateLoader"]
+                }
+            },
+            uiOptions: {
+                options: {
+                    gradeNames: ["fluid.uiOptions.defaultSettingsPanels"]
                 }
             }
         });
