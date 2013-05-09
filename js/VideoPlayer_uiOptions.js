@@ -72,7 +72,7 @@ var fluid_1_5 = fluid_1_5 || {};
         gradeNames: ["fluid.uiOptions.fatPanel", "fluid.uiOptions.withMediaPanel"]
     });
     
-    fluid.uiOptions.inline.makeCreator("fluid.uiOptions.fatPanel.withMediaPanel", fluid.uiOptions.fatPanel.optionsProcessor);
+//    fluid.uiOptions.inline.makeCreator("fluid.uiOptions.fatPanel.withMediaPanel", fluid.uiOptions.fatPanel.optionsProcessor);
 
     /**********************************************
      * UI Options Media Controls Panel Components *

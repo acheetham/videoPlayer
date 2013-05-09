@@ -1,0 +1,24 @@
+
+/*
+ * UI Options Panels styles
+ */
+.fl-icon-captions, .fl-icon-transcripts
+ {
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: inline-block;
+    float: left;
+    height: 2em;
+    width: 2.5em;
+}
+.fl-icon-captions {
+    background-image: url("../images/default/captions.png");
+}
+.fl-icon-transcripts {
+    background-image: url("../images/default/transcript.png");
+}
+.fl-uiOptions-caption-language,
+.fl-uiOptions-transcript-language {
+    margin-left: 7em;
+    width: 10em;
+}
