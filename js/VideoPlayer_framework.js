@@ -45,6 +45,7 @@ var fluid_1_5 = fluid_1_5 || {};
     // All of this machinery relies crucially on the possibility for all interesting changes to be summarised
     // as "state".
     
+/*
     fluid.defaults("fluid.modelRelay", {
         gradeNames: ["fluid.eventedComponent", "fluid.modelComponent", "autoInit"],
         postInitFunction: "fluid.modelRelay.postInit",
@@ -145,6 +146,7 @@ var fluid_1_5 = fluid_1_5 || {};
             });
         }
     };
+*/
     
     fluid.defaults("fluid.lens", {
         gradeNames: ["fluid.littleComponent"]

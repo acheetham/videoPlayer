@@ -32,11 +32,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         var uiOptions = fluid.uiOptions.fatPanel(".flc-uiOptions", {
             gradeNames: ["fluid.uiOptions.transformDefaultPanelsOptions"],
             prefix: "../../lib/infusion/components/uiOptions/html/",
-            components: {
-                relay: {
-                    type: "fluid.videoPlayer.relay"
-                }
-            },
             templateLoader: {
                 options: {
                     gradeNames: ["fluid.uiOptions.defaultTemplateLoader"]
@@ -53,86 +48,81 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
         jqUnit.asyncTest("FLUID-4812: Transcripts showing on UIO reset", function () {
             jqUnit.expect(2);
-            var instance = {
-                container: ".videoPlayer-transcript",
-                options: {
-                    templates: {
-                        videoPlayer: {
-                            href: "../../html/videoPlayer_template.html"
-                        }
-                    },
-                    listeners: {
-                        onReady: function (that) {
-                            jqUnit.notVisible("Before UIO reset, transcripts are not visible", $(".flc-videoPlayer-transcriptArea"));
-                            uiOptions.uiOptionsLoader.uiOptions.events.onUIOptionsRefresh.addListener(function () {
-                                jqUnit.notVisible("After UIO reset, transcripts are not visible", $(".flc-videoPlayer-transcriptArea"));
-                                jqUnit.start();
-                            });
-                            uiOptions.uiOptionsLoader.uiOptions.reset();
-                        }
+            var opts = {
+                templates: {
+                    videoPlayer: {
+                        href: "../../html/videoPlayer_template.html"
+                    }
+                },
+                listeners: {
+                    onReady: function (that) {
+                        jqUnit.notVisible("Before UIO reset, transcripts are not visible", $(".flc-videoPlayer-transcriptArea"));
+                        uiOptions.uiOptionsLoader.uiOptions.events.onUIOptionsRefresh.addListener(function () {
+                            jqUnit.notVisible("After UIO reset, transcripts are not visible", $(".flc-videoPlayer-transcriptArea"));
+                            jqUnit.start();
+                        });
+                        uiOptions.uiOptionsLoader.uiOptions.reset();
                     }
                 }
             };
-            fluid.testUtils.initEnhancedVideoPlayer(instance, uiOptions.relay);
+            fluid.testUtils.initEnhancedVideoPlayer(".videoPlayer-transcript", opts);
         });
 
         jqUnit.asyncTest("Scrubbing", function () {
             var newTime;
-            var instance = {
-                container: ".videoPlayer-transcript",
-                options: {
-                    video: {
-                        sources: [{
-                            src: "../../demos/videos/ReorganizeFuture/ReorganizeFuture.mp4",
-                            type: "video/mp4"
-                        }, {
-                            src: "../../demos/videos/ReorganizeFuture/ReorganizeFuture.webm",
-                            type: "video/webm"
-                        }, {
-                            src: "http://www.youtube.com/v/_VxQEPw1x9E",
-                            type: "video/youtube"
-                        }],
-                        transcripts: [{
-                            src: "../../demos/videos/ReorganizeFuture/ReorganizeFuture.transcripts.fr.json",
-                            type: "JSONcc",
-                            srclang: "fr",
-                            label: "French"
-                        }]
-                    },
-                    templates: {
-                        videoPlayer: {
-                            href: "../../html/videoPlayer_template.html"
-                        }
-                    },
-                    events: {
-                        onVideoAndTranscriptsLoaded: {
-                            events: {
-                                transcriptsLoaded: "onTranscriptsLoaded",
-                                loadedMetadata: "onLoadedMetadata"
-                            },
-                            args: ["{videoPlayer}", "{transcript}"]
-                        }
-                    },
-                    listeners: {
-                        onVideoAndTranscriptsLoaded: function (vp, that) {
-                            var anElement = $("[id^=flc-videoPlayer-transcript-element]").eq(7);
-                            newTime = (that.convertToMilli(that.options.transcripts[0].tracks[7].inTime) + 1) / 1000;
-                            
-                            vp.events.onTimeUpdate.addListener(function (currTime, buffered) {
-                                // Removing precision from the currTime as chrome returns the value with about 15 decimal places.
-                                // This comes from VideoPLayer_media.js, in the fluid.videoPlayer.media.handleTimeUpdate function.
-                                var reducedCurrTime = Math.floor(1000 * currTime) / 1000;
-                                jqUnit.assertEquals("New time is same as clicked transcript", newTime, reducedCurrTime);
-                                vp.events.onTimeUpdate.removeListener("timeChecker");
-                                jqUnit.start();
-                            }, "timeChecker");
-                            
-                            anElement.click();
-                        }
+            var opts = {
+                video: {
+                    sources: [{
+                        src: "../../demos/videos/ReorganizeFuture/ReorganizeFuture.mp4",
+                        type: "video/mp4"
+                    }, {
+                        src: "../../demos/videos/ReorganizeFuture/ReorganizeFuture.webm",
+                        type: "video/webm"
+                    }, {
+                        src: "http://www.youtube.com/v/_VxQEPw1x9E",
+                        type: "video/youtube"
+                    }],
+                    transcripts: [{
+                        src: "../../demos/videos/ReorganizeFuture/ReorganizeFuture.transcripts.fr.json",
+                        type: "JSONcc",
+                        srclang: "fr",
+                        label: "French"
+                    }]
+                },
+                templates: {
+                    videoPlayer: {
+                        href: "../../html/videoPlayer_template.html"
+                    }
+                },
+                events: {
+                    onVideoAndTranscriptsLoaded: {
+                        events: {
+                            transcriptsLoaded: "onTranscriptsLoaded",
+                            loadedMetadata: "onLoadedMetadata"
+                        },
+                        args: ["{videoPlayer}", "{transcript}"]
+                    }
+                },
+                listeners: {
+                    onVideoAndTranscriptsLoaded: function (vp, that) {
+                        var anElement = $("[id^=flc-videoPlayer-transcript-element]").eq(7);
+                        newTime = (that.convertToMilli(that.options.transcripts[0].tracks[7].inTime) + 1) / 1000;
+
+                        vp.events.onTimeUpdate.addListener(function (currTime, buffered) {
+                            // Removing precision from the currTime as chrome returns the value with about 15 decimal places.
+                            // This comes from VideoPLayer_media.js, in the fluid.videoPlayer.media.handleTimeUpdate function.
+                            var reducedCurrTime = Math.floor(1000 * currTime) / 1000;
+                            jqUnit.assertEquals("New time is same as clicked transcript", newTime, reducedCurrTime);
+                            vp.events.onTimeUpdate.removeListener("timeChecker");
+                            jqUnit.start();
+                        }, "timeChecker");
+
+                        anElement.click();
                     }
                 }
             };
-            fluid.testUtils.initEnhancedVideoPlayer(instance, uiOptions.relay);
+
+            fluid.testUtils.initEnhancedVideoPlayer(".videoPlayer-transcript", opts);
         });
 
     });

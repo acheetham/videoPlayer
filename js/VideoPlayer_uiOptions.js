@@ -56,6 +56,7 @@ var fluid_1_5 = fluid_1_5 || {};
     // A "relay component" suitable to appear as a subcomponent of uiOptions in order to 
     // perform relay from its model changes to any number of target videoPlayer components
     // currently, the targets should be added procedurally using the "addTarget" member
+/*
     fluid.defaults("fluid.videoPlayer.relay", { 
         gradeNames: ["fluid.modelRelay", "autoInit"],
         // unpleasant lack of encapsulation caused by requirement for immediate access to applier
@@ -75,6 +76,7 @@ var fluid_1_5 = fluid_1_5 || {};
             "selections.transcriptLanguage": {func: "fluid.videoPlayer.transformLanguageChange"}
         }
     });
+*/
     
     fluid.videoPlayer.defaultModel = {
         model: {
