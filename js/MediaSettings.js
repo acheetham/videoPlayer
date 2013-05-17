@@ -148,47 +148,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    fluid.defaults("fluid.uiOptions.enactors.captionsSettingsEnactor", {
-        gradeNames: ["fluid.viewComponent", "fluid.uiOptions.enactor", "autoInit"],
-        model: {
-            captions: false,
-            language: "en"
-        }
-    });
-    fluid.defaults("fluid.uiOptions.enactors.transcriptsSettingsEnactor", {
-        gradeNames: ["fluid.viewComponent", "fluid.uiOptions.enactor", "autoInit"],
-        model: {
-            transcript: false,
-            language: "en"
-        }
-    });
-    fluid.defaults("fluid.uiEnhancer.vpEnactors", {
-        gradeNames: ["fluid.uiEnhancer", "autoInit"],
-        components: {
-            captionsSettingsEnactor: {
-                type: "fluid.uiOptions.enactors.captionsSettingsEnactor",
-                container: "{uiEnhancer}.container",
-                options: {
-                    sourceApplier: "{uiEnhancer}.applier",
-                    rules: {
-                        "captions": "captions",
-                        "language": "language"
-                    }
-                }
-            },
-            transcriptsSettingsEnactor: {
-                type: "fluid.uiOptions.enactors.transcriptsSettingsEnactor",
-                container: "{uiEnhancer}.container",
-                options: {
-                    sourceApplier: "{uiEnhancer}.applier",
-                    rules: {
-                        "transcripts": "transcripts",
-                        "language": "language"
-                    }
-                }
-            }
-        }
-    });
 
     fluid.staticEnvironment.addMediaPanels = fluid.typeTag("fluid.addMediaPanels");
     var extraSettings = {
@@ -199,13 +158,13 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     };
     fluid.demands("fluid.uiEnhancer", ["fluid.addMediaPanels"], {
         options: {
-            gradeNames: ["fluid.uiEnhancer.defaultActions", "fluid.uiEnhancer.vpEnactors"],
+            gradeNames: ["fluid.uiEnhancer.defaultActions"],
             defaultSiteSettings: extraSettings
         }
     });
     fluid.demands("fluid.uiOptions", ["fluid.addMediaPanels"], {
         options: {
-            gradeNames: ["fluid.uiOptions.defaultSettingsPanels", "fluid.uiOptions.vpPanels"]
+            gradeNames: ["fluid.uiOptions.vpPanels"]
         }
     });
     fluid.demands("fluid.uiOptions.templateLoader", ["fluid.addMediaPanels"], {
@@ -219,13 +178,21 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     });
     fluid.demands("fluid.uiOptions.fatPanel", ["fluid.addMediaPanels"], {
         options: {
-            components: {
-                relay: {
-                    type: "fluid.videoPlayer.relay"
-                }
-            },
             outerEnhancerOptions: {
                 defaultSiteSettings: extraSettings
+            }
+        }
+    });
+
+    fluid.demands("fluid.videoPlayer", ["fluid.addMediaPanels"], {
+        options: {
+            gradeNames: ["fluid.uiOptions.modelRelay", "autoInit"],
+            sourceApplier: "{uiEnhancer}.applier",
+            rules: {
+                "captions": "displayCaptions",
+                "captionLanguage": "captionLanguage",
+                "transcripts": "displayTranscripts",
+                "transcriptLanguage": "transcriptLanguage"
             }
         }
     });

@@ -23,7 +23,6 @@
         <!-- Fluid and jQuery Dependencies -->
         <script type="text/javascript" src="../lib/infusion/MyInfusion.js"></script>
 
-        <script type="text/javascript" src="../js/MediaSettings.js"></script>
 
         <!-- Utils -->
         <script type="text/javascript" src="../lib/jquery-ui/js/jquery.ui.button.js"></script>
@@ -44,6 +43,7 @@
         <script type="text/javascript" src="../js/VideoPlayer_transcript.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer_intervalEventsConductor.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer_uiOptions.js"></script>
+        <script type="text/javascript" src="../js/MediaSettings.js"></script>
 
         </head>
     <body>
@@ -75,11 +75,6 @@
                 gradeNames: ["fluid.uiOptions.transformDefaultPanelsOptions"],
                 // Tell UIOptions where to find all the templates, relative to this file
                 prefix: "../lib/infusion/components/uiOptions/html/",
-                components: {
-                    relay: {
-                        type: "fluid.videoPlayer.relay"
-                    }
-                },
                 templateLoader: {
                     options: {
                         gradeNames: ["fluid.uiOptions.defaultTemplateLoader"]
@@ -145,8 +140,9 @@
                 videoTitle: "A chance to reorganize our future?"
             };
             var videoOptions = {container: ".videoPlayer", options: vpOptions};
-            fluid.videoPlayer.makeEnhancedInstances(videoOptions, uiOptions.relay);
-//            fluid.videoPlayer(".videoPlayer", vpOptions);
+
+            // use fluid.invoke to allow demands to be applied
+            var vp = fluid.invoke("fluid.videoPlayer", [".videoPlayer", vpOptions]);
         </script>
     </body>
 </html>
