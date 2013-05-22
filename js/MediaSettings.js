@@ -18,6 +18,14 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 (function ($) {
 //    fluid.setLogging(fluid.logLevel.TRACE);
 
+    fluid.staticEnvironment.addMediaPanels = fluid.typeTag("fluid.addMediaPanels");
+    var extraSettings = {
+        captions: false,
+        captionLanguage: "en",
+        transcripts: false,
+        transcriptLanguage: "en"
+    };
+
     /**
      * Captions settings panel.
      */
@@ -105,8 +113,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.defaults("fluid.uiOptions.vpPanels", {
         gradeNames: ["fluid.uiOptions", "autoInit"],
         selectors: {
-             captionsSettings: ".flc-uiOptions-captions-settings",
-             transcriptsSettings: ".flc-uiOptions-transcripts-settings"
+            captionsSettings: ".flc-uiOptions-captions-settings",
+            transcriptsSettings: ".flc-uiOptions-transcripts-settings"
         },
         components: {
             captionsSettings: {
@@ -148,14 +156,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-
-    fluid.staticEnvironment.addMediaPanels = fluid.typeTag("fluid.addMediaPanels");
-    var extraSettings = {
-        captions: false,
-        captionLanguage: "en",
-        transcripts: false,
-        transcriptLanguage: "en"
-    };
     fluid.demands("fluid.uiEnhancer", ["fluid.addMediaPanels"], {
         options: {
             gradeNames: ["fluid.uiEnhancer.defaultActions"],
@@ -173,9 +173,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 uiOptions: "../html/FatPanelUIOptions.html",
                 captionsSettings: "../html/CaptionsPanelTemplate.html",
                 transcriptsSettings: "../html/TranscriptsPanelTemplate.html"
-             }
+            }
         }
     });
+
     fluid.demands("fluid.uiOptions.fatPanel", ["fluid.addMediaPanels"], {
         options: {
             outerEnhancerOptions: {

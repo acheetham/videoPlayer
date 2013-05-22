@@ -19,21 +19,24 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 (function ($) {
     $(document).ready(function () {
         fluid.pageEnhancer({
+            gradeNames: ["fluid.uiEnhancer.defaultActions"],
             tocTemplate: "../lib/infusion/components/tableOfContents/html/TableOfContents.html"
         });
 
-        var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions", {
+        var uiOptions = fluid.uiOptions.fatPanel(".flc-uiOptions", {
+            gradeNames: ["fluid.uiOptions.transformDefaultPanelsOptions"],
             prefix: "../lib/infusion/components/uiOptions/html/",
-            components: {
-                relay: {
-                    type: "fluid.videoPlayer.relay"
-                },
-                templateLoader: {
-                    options: {
-                        templates: {
-                            mediaControls: "../html/UIOptionsTemplate-media.html"
-                        }
+            templateLoader: {
+                options: {
+                    gradeNames: ["fluid.uiOptions.defaultTemplateLoader"],
+                    templates: {
+                        mediaControls: "../html/UIOptionsTemplate-media.html"
                     }
+                }
+            },
+            uiOptions: {
+                options: {
+                    gradeNames: ["fluid.uiOptions.defaultSettingsPanels"]
                 }
             }
         });
@@ -197,11 +200,16 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             }
         }
     ];
-    
-    fluid.videoPlayer.makeEnhancedInstances(earlyVideoPlayerInstances, uiOptions.relay);
-    
+
+    // TODO: This still needs cleaning up    
+    fluid.transform(earlyVideoPlayerInstances, function (instance) {
+        var mergedOptions = $.extend(true, {}, fluid.videoPlayer.defaultModel, instance.options);
+        fluid.invoke("fluid.videoPlayer", [instance.container, instance.options]);
+    });
+
     // Initialise one video player extremely late to show that this method still works 
-    fluid.videoPlayer.makeEnhancedInstances(lateVideoPlayerInstances, uiOptions.relay);      
+    var mergedOptions = $.extend(true, {}, fluid.videoPlayer.defaultModel, lateVideoPlayerInstances.options);
+    fluid.invoke("fluid.videoPlayer", [lateVideoPlayerInstances[0].container, lateVideoPlayerInstances[0].options]);
     
     });
     
