@@ -18,7 +18,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 (function ($) {
 //    fluid.setLogging(fluid.logLevel.TRACE);
 
-    fluid.staticEnvironment.addMediaPanels = fluid.typeTag("fluid.addMediaPanels");
+    fluid.staticEnvironment.addMediaPanels = fluid.typeTag("fluid.videoPlayer.addMediaPanels");
     var extraSettings = {
         captions: false,
         captionLanguage: "en",
@@ -29,7 +29,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     /**
      * Captions settings panel.
      */
-    fluid.defaults("fluid.uiOptions.captionsSettings", {
+    fluid.defaults("fluid.videoPlayer.captionsSettings", {
         gradeNames: ["fluid.uiOptions.settingsPanel", "autoInit"],
         model: {
             captions: false,
@@ -45,7 +45,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             captions: ".flc-uiOptions-captions",
             language: ".flc-uiOptions-caption-language"
         },
-        produceTree: "fluid.uiOptions.captionsSettings.produceTree",
+        produceTree: "fluid.videoPlayer.captionsSettings.produceTree",
         resources: {
             template: {
                 url: "../html/CaptionsPanelTemplate.html"
@@ -56,7 +56,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     /**
      * Transcripts settings panel.
      */
-    fluid.defaults("fluid.uiOptions.transcriptsSettings", {
+    fluid.defaults("fluid.videoPlayer.transcriptsSettings", {
         gradeNames: ["fluid.uiOptions.settingsPanel", "autoInit"],
         model: {
             transcripts: false,
@@ -72,7 +72,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             transcripts: ".flc-uiOptions-transcripts",
             language: ".flc-uiOptions-transcript-language"
         },
-        produceTree: "fluid.uiOptions.transcriptsSettings.produceTree",
+        produceTree: "fluid.videoPlayer.transcriptsSettings.produceTree",
         resources: {
             template: {
                 url: "../html/TranscriptsPanelTemplate.html"
@@ -80,7 +80,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    fluid.uiOptions.captionsSettings.produceTree = function (that) {
+    fluid.videoPlayer.captionsSettings.produceTree = function (that) {
         return {
             captions: "${captions}",
             language: {
@@ -95,7 +95,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         };
     };
 
-    fluid.uiOptions.transcriptsSettings.produceTree = function (that) {
+    fluid.videoPlayer.transcriptsSettings.produceTree = function (that) {
         return {
             transcripts: "${transcripts}",
             language: {
@@ -110,7 +110,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         };
     };
 
-    fluid.defaults("fluid.uiOptions.vpPanels", {
+    fluid.defaults("fluid.videoPlayer.mediaPanels", {
         gradeNames: ["fluid.uiOptions", "autoInit"],
         selectors: {
             captionsSettings: ".flc-uiOptions-captions-settings",
@@ -118,7 +118,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         },
         components: {
             captionsSettings: {
-                type: "fluid.uiOptions.captionsSettings",
+                type: "fluid.videoPlayer.captionsSettings",
                 container: "{uiOptions}.dom.captionsSettings",
                 createOnEvent: "onUIOptionsMarkupReady",
                 options: {
@@ -136,7 +136,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 }
             },
             transcriptsSettings: {
-                type: "fluid.uiOptions.transcriptsSettings",
+                type: "fluid.videoPlayer.transcriptsSettings",
                 container: "{uiOptions}.dom.transcriptsSettings",
                 createOnEvent: "onUIOptionsMarkupReady",
                 options: {
@@ -156,18 +156,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    fluid.demands("fluid.uiEnhancer", ["fluid.addMediaPanels"], {
+    fluid.demands("fluid.uiEnhancer", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
             gradeNames: ["fluid.uiEnhancer.defaultActions"],
             defaultSiteSettings: extraSettings
         }
     });
-    fluid.demands("fluid.uiOptions", ["fluid.addMediaPanels"], {
+    fluid.demands("fluid.uiOptions", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
-            gradeNames: ["fluid.uiOptions.vpPanels"]
+            gradeNames: ["fluid.videoPlayer.mediaPanels"]
         }
     });
-    fluid.demands("fluid.uiOptions.templateLoader", ["fluid.addMediaPanels"], {
+    fluid.demands("fluid.uiOptions.templateLoader", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
             templates: {
                 uiOptions: "../html/FatPanelUIOptions.html",
@@ -177,7 +177,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    fluid.demands("fluid.uiOptions.fatPanel", ["fluid.addMediaPanels"], {
+    fluid.demands("fluid.uiOptions.fatPanel", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
             outerEnhancerOptions: {
                 defaultSiteSettings: extraSettings
@@ -185,16 +185,17 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    fluid.demands("fluid.videoPlayer", ["fluid.addMediaPanels"], {
+    fluid.demands("fluid.videoPlayer", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
             gradeNames: ["fluid.uiOptions.modelRelay", "autoInit"],
             sourceApplier: "{uiEnhancer}.applier",
             rules: {
                 "captions": "displayCaptions",
-                "captionLanguage": "captionLanguage",
+                "captionLanguage": "currentTracks.captions",
                 "transcripts": "displayTranscripts",
-                "transcriptLanguage": "transcriptLanguage"
+                "transcriptLanguage": "currentTracks.transcripts"
             }
         }
     });
+
 })(jQuery);
