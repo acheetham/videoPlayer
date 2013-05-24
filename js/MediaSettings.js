@@ -26,6 +26,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         transcriptLanguage: "en"
     };
 
+    // TODO: These settings panels should be combined into a grade to reduce duplication
+
     /**
      * Captions settings panel.
      */
@@ -185,15 +187,51 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
+    // Returns the index of a track record whose language matches the supplied - suitable for use with fluid.find
+    fluid.videoPlayer.matchLanguageRecord = function (language) {
+        return function (record, index) {
+            return record.srclang === language ? index : undefined;
+        };
+    };
+
+    // Find the given language code in the list of tracks, return the index in a form suitable for
+    // a model change request
+    fluid.videoPlayer.langCodeToIndex = function (that, langCode, trackType) {
+        var ml = fluid.videoPlayer.matchLanguageRecord(langCode);
+        var index = fluid.find(fluid.get(that, "options.video." + trackType), ml);
+        if (index !== undefined) {
+            return [index];
+        } else {
+            return [that.model.currentTracks[trackType]];
+        }
+    };
+
+    // Add the modelRelay grade to the video player to relay uiEnhancer model changes into the video player model
     fluid.demands("fluid.videoPlayer", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
             gradeNames: ["fluid.uiOptions.modelRelay", "autoInit"],
             sourceApplier: "{uiEnhancer}.applier",
             rules: {
                 "captions": "displayCaptions",
-                "captionLanguage": "currentTracks.captions",
+                "captionLanguage": {
+                    path: "currentTracks.captions",
+                    func: "{that}.langCodeToCaptionIndex"
+                },
                 "transcripts": "displayTranscripts",
-                "transcriptLanguage": "currentTracks.transcripts"
+                "transcriptLanguage": {
+                    path: "currentTracks.transcripts",
+                    func: "{that}.langCodeToTranscriptIndex"
+                }
+            },
+            invokers: {
+                langCodeToCaptionIndex: {
+                    funcName: "fluid.videoPlayer.langCodeToIndex", 
+                    args: ["{videoPlayer}", "{arguments}.0", "captions"]
+                },
+                langCodeToTranscriptIndex: {
+                    funcName: "fluid.videoPlayer.langCodeToIndex", 
+                    args: ["{videoPlayer}", "{arguments}.0", "transcripts"]
+                }
             }
         }
     });
