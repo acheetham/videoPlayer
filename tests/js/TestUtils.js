@@ -90,10 +90,11 @@ fluid.registerNamespace("fluid.testUtils");
         return fluid.invoke("fluid.videoPlayer", [container, opts]);
     };
 
-    fluid.testUtils.initEnhancedVideoPlayer = function (container, options) {
+    fluid.testUtils.initEnhancedVideoPlayer = function (instance, relay) {
         var opts = fluid.copy(baseOpts);
-        $.extend(true, opts, options);
-        return fluid.invoke("fluid.videoPlayer", [container, opts]);
+        $.extend(true, opts, instance.options);
+        instance.options = opts;
+        return fluid.videoPlayer.makeEnhancedInstances(instance, relay);
     };
 
     fluid.testUtils.getTooltipCheckString = function (jEl, expectedText) {
