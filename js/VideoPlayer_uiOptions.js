@@ -62,20 +62,20 @@ var fluid_1_5 = fluid_1_5 || {};
         // (fetch is called in finalInit function) TODO: make a proper API for this, although
         // better to implement "model events system"
         // Must use "short nickname" here because of FLUID-4636/FLUID-4392
-        sourceApplier: "{fatPanel}.applier",
+        sourceApplier: "{uiEnhancer}.applier",
         events: {
             // This is rather late - the settings store actually executes on "onUIOptionsComponentReady" but
             // this is an implementation detail that the relayer may as well not be aware of
-            bindingTrigger: "{fatPanel}.events.onReady"
+            bindingTrigger: "{uiEnhancer}.events.onCreate"
         },
         rules: { // TODO: Clean this up
-            "selections.captions": "displayCaptions",
-            "selections.captionLanguage": {func: "fluid.videoPlayer.transformLanguageChange"},
-            "selections.transcripts": "displayTranscripts",
-            "selections.transcriptLanguage": {func: "fluid.videoPlayer.transformLanguageChange"}
+            "captions": "displayCaptions",
+            "captionLanguage": {func: "fluid.videoPlayer.transformLanguageChange"},
+            "transcripts": "displayTranscripts",
+            "transcriptLanguage": {func: "fluid.videoPlayer.transformLanguageChange"}
         }
     });
-    
+
     fluid.videoPlayer.defaultModel = {
         model: {
             currentTracks: {
@@ -91,6 +91,7 @@ var fluid_1_5 = fluid_1_5 || {};
         
         var listener = function () {
             var players = fluid.transform(instances, function (instance) {
+console.log("makeEnhancedInstances: merging in relay mode of "+fluid.prettyPrintJSON(relay.model));
                 var mergedOptions = $.extend(true, {}, fluid.videoPlayer.defaultModel, {model: relay.model}, instance.options);
                 var player = fluid.videoPlayer(instance.container, mergedOptions);
                 relay.addTarget(player);
@@ -98,18 +99,13 @@ var fluid_1_5 = fluid_1_5 || {};
             });
             callback(players);
         };
-        var lateListener = function () {
-            // fluid.log("Listener for " + instances.length);
-            // awful workaround for FLUID-4192, "broken trees"
-            setTimeout(listener, 1);
-        };
         
         if (relay.events.bindingTrigger && !relay.options.bindingTriggered) {
             // fluid.log("Late binding instances " + instances.length);
-            relay.events.bindingTrigger.addListener(lateListener);
+            relay.events.bindingTrigger.addListener(listener);
         } else {
             // fluid.log("Immediate binding instances " + instances.length);
-            lateListener();
+            listener();
         }
     };
 

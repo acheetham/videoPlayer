@@ -664,4 +664,26 @@ var fluid_1_5 = fluid_1_5 || {};
         args: ["{videoPlayer}"]
     });
     
+    /**
+     * A parent component providing the VP implementation and the settings relay
+     */
+    fluid.defaults("fluid.videoPlayer.parent", {
+        gradeNames: ["fluid.littleComponent", "autoInit"],
+        components: {
+            videoPlayerImpl: {
+                type: "fluid.videoPlayer"
+            }
+        }
+    });
+    /**
+     * A grade that adds a settings relay subcomponent
+     */
+    fluid.defaults("fluid.videoPlayer.settingsRelay", {
+        gradeNames: ["fluid.littleComponent", "autoInit"],
+        components: {
+            settingsRelay: {
+                type: "fluid.videoPlayer.relay"
+            }
+        }
+    });
 })(jQuery, fluid_1_5);

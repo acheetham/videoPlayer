@@ -20,7 +20,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     $(document).ready(function () {
 
         fluid.staticEnvironment.uiOptionsTest = fluid.typeTag("fluid.tests.uiOptions");
-        fluid.demands("fluid.uiOptions.templateLoader", ["fluid.addMediaPanels", "fluid.tests.uiOptions"], {
+        fluid.demands("fluid.uiOptions.templateLoader", ["fluid.tests.uiOptions", "fluid.tests.uiOptions"], {
             options: {
                 templates: {
                     uiOptions: "../../html/FatPanelUIOptions.html",

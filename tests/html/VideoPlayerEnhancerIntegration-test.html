@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Video Player Transcript Integration Test Suite</title>
+        <title>Video Player Enhancer Integration Test Suite</title>
 
         <link rel="stylesheet" type="text/css" media="screen" href="../lib/qunit/css/qunit.css" />
 
@@ -25,11 +25,12 @@
         <!--  jqUnit test framework js files -->
         <script type="text/javascript" src="../lib/qunit/js/qunit.js"></script>
         <script type="text/javascript" src="../lib/jqUnit/js/jqUnit.js"></script>
+        <script type="text/javascript" src="../lib/utils/js/IoCTestUtils.js"></script>
         <script type="text/javascript" src="../lib/jqUnit/js/jqUnit-browser.js"></script>
 
         <!--  These are tests that have been written using this page as data and test supports -->
         <script type="text/javascript" src="../js/TestUtils.js"></script>
-        <script type="text/javascript" src="../js/VideoPlayerTranscriptIntegrationTests.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayerEnhancerIntegrationTests.js"></script>
         
         <!-- Utils -->
         <script type="text/javascript" src="../../lib/captionator/js/captionator.js"></script>
@@ -38,10 +39,12 @@
     </head>
     <body id="body">
         <script>
+/*
             fluid.pageEnhancer({
                 gradeNames: ["fluid.uiEnhancer.defaultActions"],
                 tocTemplate: "../../lib/infusion/components/tableOfContents/html/TableOfContents.html"
             });
+*/
         </script>
 
         <div class="flc-uiOptions fl-uiOptions-fatPanel">
@@ -53,7 +56,7 @@
         <div class="flc-toc-tocContainer"> </div>
 
       <!-- This is the markup that jqUnit will look for when running tests and displaying the results -->
-      <h1 id="qunit-header">Video Player Transcript Integration Test Suite</h1>
+      <h1 id="qunit-header">Video Player Enhancer Integration Test Suite</h1>
       <h2 id="qunit-banner"></h2>
       <div id="qunit-testrunner-toolbar"></div>
       <h2 id="qunit-userAgent"></h2>

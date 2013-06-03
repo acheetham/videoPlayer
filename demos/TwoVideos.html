@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Test: Two Video Players</title>
+        <link rel="stylesheet" type="text/css" href="../lib/infusion/framework/fss/css/fss-layout.css" />
+        <link rel="stylesheet" type="text/css" href="../lib/infusion/framework/fss/css/fss-text.css" />
+
+        <link type="text/css" href="../lib/jquery-ui/css/ui-lightness/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+        <link type="text/css" href="../lib/captionator/css/captions.css" rel="stylesheet" />
+        <link type="text/css" href="../css/VideoPlayer.css" rel="stylesheet" />
+
+        <!-- Fluid and jQuery Dependencies -->
+        <script type="text/javascript" src="../lib/infusion/MyInfusion.js"></script>
+
+        <!-- Utils -->
+        <script type="text/javascript" src="../lib/captionator/js/captionator.js"></script>
+        <script type="text/javascript" src="../lib/mediaelement/js/mediaelement.js"></script>
+
+        <!-- VideoPlayer dependencies -->
+        <script type="text/javascript" src="../js/HTML5-backcompat.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_framework.js"></script>
+        <script type="text/javascript" src="../js/ToggleButton.js"></script>
+        <script type="text/javascript" src="../js/MenuButton.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_intervalEventsConductor.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_html5Captionator.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_showHide.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_controllers.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_media.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer_transcript.js"></script>
+        <script type="text/javascript" src="../js/VideoPlayer.js"></script>
+    </head>
+
+    <body>
+        <div class="videoPlayer1 fl-videoPlayer"></div>
+        <div class="videoPlayer2 fl-videoPlayer"></div>
+
+        <script type="text/javascript">
+            fluid.staticEnvironment.testModelRelay = fluid.typeTag("fluid.testModelRelay");
+            var testApplier = fluid.makeChangeApplier({}, {});
+            fluid.demands("fluid.videoPlayer", ["fluid.testModelRelay"], {
+                options: {
+                    gradeNames: ["fluid.uiOptions.modelRelay", "autoInit"]
+                }
+            });
+
+            var vp1 = fluid.invoke("fluid.videoPlayer", [".videoPlayer1", {
+                video: {
+                    sources: [
+                        {
+                            src: "videos/ReorganizeFuture/ReorganizeFuture.mp4",
+                            type: "video/mp4"
+                        },
+                        {
+                            src: "videos/ReorganizeFuture/ReorganizeFuture.webm",
+                            type: "video/webm"
+                        }
+                    ],
+                    captions: [
+                        {
+                            src: "videos/ReorganizeFuture/ReorganizeFuture.en.vtt",
+                            type: "text/vtt",
+                            srclang: "en",
+                            label: "English"
+                        }
+                    ],
+                    transcripts: [
+                        {
+                            src: "videos/ReorganizeFuture/ReorganizeFuture.transcripts.en.json",
+                            type: "JSONcc",
+                            srclang: "en",
+                            label: "English"
+                        }
+                    ]
+                },
+                videoTitle: "A chance to reorganize our future?"
+            }]);
+
+            var vp2 = fluid.invoke("fluid.videoPlayer", [".videoPlayer2", {
+                video: {
+                    sources: [
+                        {
+                            src: "videos/Mammals/Mammals.mp4",
+                            type: "video/mp4"
+                        },
+                        {
+                            src: "videos/Mammals/Mammals.webm",
+                            type: "video/webm"
+                        }
+                    ],
+                    captions: [
+                        {
+                            src: "videos/Mammals/Mammals.fr.vtt",
+                            type: "text/vtt",
+                            srclang: "fr",
+                            label: "French"
+                        }
+                    ],
+                    transcripts: [
+                        {
+                            src: "videos/Mammals/Mammals.transcripts.fr.json",
+                            type: "JSONcc",
+                            srclang: "fr",
+                            label: "French"
+                        }
+                    ]
+                },
+            }]);
+
+
+        </script>
+    </body>
+</html>
