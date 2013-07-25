@@ -18,6 +18,88 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 (function ($) {
     fluid.staticEnvironment["fluid--videoPlayer--addMediaPanels"] = fluid.typeTag("fluid.videoPlayer.addMediaPanels");
 
+    fluid.registerNamespace("fluid.videoPlayer");
+
+    fluid.defaults("fluid.videoPlayer.schemas.captions", {
+        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
+        schema: {
+            "fluid.videoPlayer.captions": {
+                type: "boolean",
+                "default": false
+            }
+        }
+    });
+    fluid.defaults("fluid.videoPlayer.schemas.captionLanguage", {
+        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
+        schema: {
+            "fluid.videoPlayer.captionLanguage": {
+                type: "string",
+                "default": "en",
+                "enum": ["en", "fr"]
+            }
+        }
+    });
+    fluid.defaults("fluid.videoPlayer.schemas.transcripts", {
+        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
+        schema: {
+            "fluid.videoPlayer.transcripts": {
+                type: "boolean",
+                "default": false
+            }
+        }
+    });
+    fluid.defaults("fluid.videoPlayer.schemas.transcriptLanguage", {
+        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
+        schema: {
+            "fluid.videoPlayer.transcriptLanguage": {
+                type: "string",
+                "default": "en",
+                "enum": ["en", "fr"]
+            }
+        }
+    });
+
+    fluid.videoPlayer.auxSchema = {
+        "namespace": "fluid.uiOptions.vp",
+        "templatePrefix": "../lib/infusion/components/uiOptions/html/", // relative path to infusion's templates; works for infusion's templates, but not media panels
+        transcripts: {
+            type: "fluid.videoPlayer.transcripts",
+            panel: {
+                type: "fluid.videoPlayer.panels.transcriptsSettings",
+                container: ".flc-uiOptions-transcripts-settings",
+                template: "../html/MediaPanelTemplate.html"
+            }
+        },
+        transcriptLanguage: {
+            type: "fluid.videoPlayer.transcriptLanguage",
+            panel: {
+                type: "fluid.videoPlayer.panels.transcriptsSettings"
+            }
+        }
+    };
+
+    if (fluid.browser.nativeVideoSupport()) {
+        fluid.videoPlayer.auxSchema.captions = {
+            type: "fluid.videoPlayer.captions", // this string must match the key in the primarySchema
+            panel: {
+                type: "fluid.videoPlayer.panels.captionsSettings", // this is the gradeName for the panel
+                container: ".flc-uiOptions-captions-settings",
+                template: "../html/MediaPanelTemplate.html"
+            }
+        };
+        fluid.videoPlayer.auxSchema.captionLanguage = {
+            type: "fluid.videoPlayer.captionLanguage",
+            panel: {
+                type: "fluid.videoPlayer.panels.captionsSettings"
+            }
+        };
+    }
+
+    fluid.defaults("fluid.videoPlayer.auxSchema.mediaPanels", {
+        gradeNames: ["fluid.uiOptions.auxSchema", "autoInit"],
+        auxiliarySchema: fluid.videoPlayer.auxSchema
+    });
+
     /**
      * Shared grade for both settings panels
      */
@@ -82,6 +164,15 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      */
     fluid.defaults("fluid.videoPlayer.panels.captionsSettings", {
         gradeNames: ["fluid.videoPlayer.panels.mediaSettings", "autoInit"],
+        preferenceMap: {
+            "fluid.videoPlayer.captions": {
+                // the key is the internal model path, the value is the path into the schema
+                "model.show": "default"
+            },
+            "fluid.videoPlayer.captionLanguage": {
+                "model.language": "default"
+            }
+        },
         model: {
             type: "captions"
         },
@@ -94,66 +185,19 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      */
     fluid.defaults("fluid.videoPlayer.panels.transcriptsSettings", {
         gradeNames: ["fluid.videoPlayer.panels.mediaSettings", "autoInit"],
+        preferenceMap: {
+            "fluid.videoPlayer.transcripts": {
+                "model.show": "default"
+            },
+            "fluid.videoPlayer.transcriptLanguage": {
+                "model.language": "default"
+            }
+        },
         model: {
             type: "transcripts"
         },
         styles: {
             icon: "fl-icon-transcripts"
-        }
-    });
-
-
-    // Grade for adding the media panels to uiOptions
-    fluid.defaults("fluid.videoPlayer.mediaPanels", {
-        gradeNames: ["fluid.uiOptions", "autoInit"],
-        selectors: {
-            captionsSettings: ".flc-uiOptions-captions-settings",
-            transcriptsSettings: ".flc-uiOptions-transcripts-settings"
-        },
-        components: {
-            captionsSettings: {
-                type: "fluid.emptyEventedSubcomponent",
-                createOnEvent: "onUIOptionsMarkupReady"
-            },
-            transcriptsSettings: {
-                type: "fluid.videoPlayer.panels.transcriptsSettings",
-                container: "{uiOptions}.dom.transcriptsSettings",
-                createOnEvent: "onUIOptionsMarkupReady",
-                options: {
-                    gradeNames: "fluid.uiOptions.defaultPanel",
-                    rules: {
-                        "selections.transcripts": "show",
-                        "selections.transcriptLanguage": "language"
-                    },
-                    model: {
-                        show: "{fluid.uiOptions.rootModel}.rootModel.transcripts",
-                        language: "{fluid.uiOptions.rootModel}.rootModel.transcriptLanguage"
-                    },
-                    resources: {
-                        template: "{templateLoader}.resources.transcriptsSettings"
-                    }
-                }
-            }
-        }
-    });
-
-    // Captions are only supported in browsers wtih native video support
-    fluid.demands("captionsSettings", ["fluid.browser.nativeVideoSupport"], {
-        funcName: "fluid.videoPlayer.panels.captionsSettings",
-        container: "{uiOptions}.dom.captionsSettings",
-        options: {
-            gradeNames: "fluid.uiOptions.defaultPanel",
-            rules: {
-                "selections.captions": "show",
-                "selections.captionLanguage": "language"
-            },
-            model: {
-                show: "{fluid.uiOptions.rootModel}.rootModel.captions",
-                language: "{fluid.uiOptions.rootModel}.rootModel.captionLanguage"
-            },
-            resources: {
-                template: "{templateLoader}.resources.captionsSettings"
-            }
         }
     });
 
@@ -169,15 +213,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-/*
-    var extraSettings = {
-        captions: false,
-        captionLanguage: "en",
-        transcripts: false,
-        transcriptLanguage: "en"
-    };
-*/
-
     // Add the relay to UIEnhancer
     fluid.demands("fluid.uiEnhancer", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
@@ -185,31 +220,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-    // Add the media panels to UIOptions
-    fluid.demands("fluid.uiOptions", ["fluid.videoPlayer.addMediaPanels"], {
-        options: {
-            gradeNames: ["fluid.uiOptions.defaultPanels", "fluid.videoPlayer.mediaPanels"]
-        }
-    });
 
-    // Tell uiOptions where to find the templates for the media panels
-    // TODO: These paths will all have to be overridden by integrators. Need a better way, through a prefix?
-    fluid.demands("fluid.uiOptions.templateLoader", ["fluid.videoPlayer.addMediaPanels"], {
-        options: {
-            templates: {
-                captionsSettings: "../html/MediaPanelTemplate.html",
-                transcriptsSettings: "../html/MediaPanelTemplate.html"
-            }
-        }
-    });
-    fluid.demands("fluid.uiOptions.templateLoader", ["fluid.videoPlayer.addMediaPanels"], {
+    // this needs to be a demand for resourceLoader instead of templateLoader
+    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels"], {
         options: {
             templates: {
                 uiOptions: "../html/FatPanelUIOptionsNoNativeVideo.html"
             }
         }
     });
-    fluid.demands("fluid.uiOptions.templateLoader", ["fluid.videoPlayer.addMediaPanels", "fluid.browser.nativeVideoSupport"], {
+
+    // this needs to be a demand for resourceLoader instead of templateLoader
+    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels", "fluid.browser.nativeVideoSupport"], {
         options: {
             templates: {
                 uiOptions: "../html/FatPanelUIOptions.html"
