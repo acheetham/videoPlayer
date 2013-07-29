@@ -26,8 +26,7 @@
 .fl-uiOptions .fl-icon-transcripts:before {
     content: "\e001";
 }
-.fl-uiOptions-caption-language,
-.fl-uiOptions-transcript-language {
+.fl-videoPlayer-media-language {
     margin-left: 7em;
     width: 12em;
 }

@@ -20,6 +20,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
     fluid.registerNamespace("fluid.videoPlayer");
 
+    /*
+     * This schema defines the individual settings.
+     */
     fluid.videoPlayer.primarySchema = {
         "fluid.videoPlayer.captions": {
             type: "boolean",
@@ -41,6 +44,10 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     };
 
+    /*
+     * This schema provides the information necessary to render the panels.
+     * Note that in this case, no enactors are necessary because the VideoPlayer itself acts as an enactor.
+     */
     fluid.videoPlayer.auxSchema = {
         "namespace": "fluid.uiOptions.vp",
         "template": "../html/FatPanelUIOptions.html",
@@ -51,7 +58,8 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             panel: {
                 type: "fluid.videoPlayer.panels.transcriptsSettings",
                 container: ".flc-uiOptions-transcripts-settings",
-                template: "../html/MediaPanelTemplate.html"
+                template: "../html/MediaPanelTemplate.html",
+                message: "../messages/transcripts.json"
             }
         },
         transcriptLanguage: {
@@ -62,13 +70,16 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     };
 
+    // Captions are only supported on platforms that support the native video element,
+    // so only add the captions panel to the auxiliary schema in that case.
     if (fluid.browser.nativeVideoSupport()) {
         fluid.videoPlayer.auxSchema.captions = {
             type: "fluid.videoPlayer.captions", // this string must match the key in the primarySchema
             panel: {
                 type: "fluid.videoPlayer.panels.captionsSettings", // this is the gradeName for the panel
                 container: ".flc-uiOptions-captions-settings",
-                template: "../html/MediaPanelTemplate.html"
+                template: "../html/MediaPanelTemplate.html",
+                message: "../messages/captions.json"
             }
         };
         fluid.videoPlayer.auxSchema.captionLanguage = {
@@ -78,26 +89,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             }
         };
     }
-
-/*
-    // this needs to be a demand for resourceLoader instead of templateLoader
-    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels"], {
-        options: {
-            templates: {
-                uiOptions: "../html/FatPanelUIOptionsNoNativeVideo.html"
-            }
-        }
-    });
-
-    // this needs to be a demand for resourceLoader instead of templateLoader
-    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels", "fluid.browser.nativeVideoSupport"], {
-        options: {
-            templates: {
-                uiOptions: "../html/FatPanelUIOptions.html"
-            }
-        }
-    });
-*/
 
     /**
      * Shared grade for both settings panels
@@ -122,23 +113,24 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             icon: "fl-icon"
         },
         selectors: {
-            type: ".flc-videoPlayer-media-type",
-            icon: ".flc-videoPlayer-media-icon",
-            show: ".flc-videoPlayer-media-show",
+            label: ".flc-videoPlayer-media-label",
+            show: ".flc-videoPlayer-media",
+            choiceLabel: ".flc-videoPlayer-media-choice-label",
             language: ".flc-videoPlayer-media-language"
         },
         produceTree: "fluid.videoPlayer.panels.mediaSettings.produceTree"
     });
+
     fluid.videoPlayer.panels.mediaSettings.produceTree = function (that) {
         return {
+            label: {messagekey: that.mediaType + "Label"},
+            choiceLabel: {messagekey: that.mediaType + "ChoiceLabel"},
             icon: {
                 decorators: [{
                     type: "addClass",
                     classes: that.options.styles.icon
                 }]
             },
-            // might be able to use IOC to reference a regular option instead of putting type in model
-            type: "${type}",
             show: "${show}",
             language: {
                 optionnames: that.options.strings.language,
@@ -152,6 +144,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             }
         };
     };
+
     fluid.videoPlayer.panels.mediaSettings.toggleLanguageOnShow = function (that) {
         that.applier.modelChanged.addListener("show", function (newModel, oldModel, request) {
             that.locate("language").prop("disabled", !that.model.show);
@@ -172,13 +165,14 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 "model.language": "default"
             }
         },
-        model: {
-            type: "captions"
-        },
         styles: {
             icon: "fl-icon-captions"
+        },
+        members: {
+            mediaType: "captions"
         }
     });
+
     /**
      * Transcripts settings panel.
      */
@@ -192,11 +186,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 "model.language": "default"
             }
         },
-        model: {
-            type: "transcripts"
-        },
         styles: {
             icon: "fl-icon-transcripts"
+        },
+        members: {
+            mediaType: "transcripts"
         }
     });
 
