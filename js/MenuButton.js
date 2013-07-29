@@ -54,6 +54,10 @@ var fluid_1_5 = fluid_1_5 || {};
             onControlledElementReady: {
                 listener: "fluid.videoPlayer.languageMenu.setAriaControlsAttr",
                 args: ["{languageMenu}", "{arguments}.0"]
+            },
+            afterRender: {
+                listener: "fluid.videoPlayer.languageMenu.bindControls",
+                args: ["{languageMenu}"]
             }
         },
         selectors: {
@@ -212,9 +216,12 @@ var fluid_1_5 = fluid_1_5 || {};
         };
     };
 
-    fluid.videoPlayer.languageMenu.finalInit = function (that) {
+    fluid.videoPlayer.languageMenu.bindControls = function (that) {
         fluid.videoPlayer.languageMenu.bindEventListeners(that);
         fluid.videoPlayer.languageMenu.setUpKeyboardA11y(that);
+    };
+
+    fluid.videoPlayer.languageMenu.finalInit = function (that) {
 
         that.container.attr("role", "menu");
         that.container.css("z-index", 9999);

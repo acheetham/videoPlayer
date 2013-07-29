@@ -20,48 +20,32 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
     fluid.registerNamespace("fluid.videoPlayer");
 
-    fluid.defaults("fluid.videoPlayer.schemas.captions", {
-        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
-        schema: {
-            "fluid.videoPlayer.captions": {
-                type: "boolean",
-                "default": false
-            }
+    fluid.videoPlayer.primarySchema = {
+        "fluid.videoPlayer.captions": {
+            type: "boolean",
+            "default": false
+        },
+        "fluid.videoPlayer.captionLanguage": {
+            type: "string",
+            "default": "en",
+            "enum": ["en", "fr"]
+        },
+        "fluid.videoPlayer.transcripts": {
+            type: "boolean",
+            "default": false
+        },
+        "fluid.videoPlayer.transcriptLanguage": {
+            type: "string",
+            "default": "en",
+            "enum": ["en", "fr"]
         }
-    });
-    fluid.defaults("fluid.videoPlayer.schemas.captionLanguage", {
-        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
-        schema: {
-            "fluid.videoPlayer.captionLanguage": {
-                type: "string",
-                "default": "en",
-                "enum": ["en", "fr"]
-            }
-        }
-    });
-    fluid.defaults("fluid.videoPlayer.schemas.transcripts", {
-        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
-        schema: {
-            "fluid.videoPlayer.transcripts": {
-                type: "boolean",
-                "default": false
-            }
-        }
-    });
-    fluid.defaults("fluid.videoPlayer.schemas.transcriptLanguage", {
-        gradeNames: ["autoInit", "fluid.uiOptions.schemas"],
-        schema: {
-            "fluid.videoPlayer.transcriptLanguage": {
-                type: "string",
-                "default": "en",
-                "enum": ["en", "fr"]
-            }
-        }
-    });
+    };
 
     fluid.videoPlayer.auxSchema = {
         "namespace": "fluid.uiOptions.vp",
+        "template": "../html/FatPanelUIOptions.html",
         "templatePrefix": "../lib/infusion/components/uiOptions/html/", // relative path to infusion's templates; works for infusion's templates, but not media panels
+        "messagePrefix": "../lib/infusion/components/uiOptions/messages/",  // The common path to settings panel templates. The template defined in "panels" element will take precedence over this definition.
         transcripts: {
             type: "fluid.videoPlayer.transcripts",
             panel: {
@@ -95,10 +79,25 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         };
     }
 
-    fluid.defaults("fluid.videoPlayer.auxSchema.mediaPanels", {
-        gradeNames: ["fluid.uiOptions.auxSchema", "autoInit"],
-        auxiliarySchema: fluid.videoPlayer.auxSchema
+/*
+    // this needs to be a demand for resourceLoader instead of templateLoader
+    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels"], {
+        options: {
+            templates: {
+                uiOptions: "../html/FatPanelUIOptionsNoNativeVideo.html"
+            }
+        }
     });
+
+    // this needs to be a demand for resourceLoader instead of templateLoader
+    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels", "fluid.browser.nativeVideoSupport"], {
+        options: {
+            templates: {
+                uiOptions: "../html/FatPanelUIOptions.html"
+            }
+        }
+    });
+*/
 
     /**
      * Shared grade for both settings panels
@@ -220,24 +219,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         }
     });
 
-
-    // this needs to be a demand for resourceLoader instead of templateLoader
-    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels"], {
-        options: {
-            templates: {
-                uiOptions: "../html/FatPanelUIOptionsNoNativeVideo.html"
-            }
-        }
-    });
-
-    // this needs to be a demand for resourceLoader instead of templateLoader
-    fluid.demands("fluid.uiOptions.resourceLoader", ["fluid.videoPlayer.addMediaPanels", "fluid.browser.nativeVideoSupport"], {
-        options: {
-            templates: {
-                uiOptions: "../html/FatPanelUIOptions.html"
-            }
-        }
-    });
 
     /**
      * A grade responsible for binding the UIEnhancer relay to the VideoPlayer

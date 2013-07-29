@@ -62,10 +62,24 @@
         </div>
 
         <script>
+/*
+This is the preferred way to ask for the starter schemas, but it doesn't quite work yet.
             var uioBuilder = fluid.uiOptions.builder({
+                gradeNames: ["fluid.uiOptions.auxSchema.starter"],
                 auxiliarySchema: fluid.videoPlayer.auxSchema
             });
-            // the "fluid.uiOptions.vp" namespace is the one the schema defines
+*/
+
+// In the meantime, this method works
+            fluid.defaults("fluid.videoPlayer.myBuilder", {
+                gradeNames: ["fluid.uiOptions.builder", "fluid.uiOptions.auxSchema.starter", "autoInit"],
+                schema: fluid.videoPlayer.primarySchema,
+                auxiliarySchema: fluid.videoPlayer.auxSchema
+            });
+            var uioBuilder = fluid.videoPlayer.myBuilder();
+
+
+            // the "fluid.uiOptions.vp" namespace is the one the auxiliary schema defines
             fluid.uiOptions.vp.uio(".flc-uiOptions");
 
             var vpOptions = {
