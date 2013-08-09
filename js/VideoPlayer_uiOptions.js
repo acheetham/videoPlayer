@@ -66,10 +66,17 @@ var fluid_1_5 = fluid_1_5 || {};
             bindingTrigger: "{uiEnhancer}.events.onCreate"
         },
         rules: {
+/*
             "captions": "displayCaptions",
             "transcripts": "displayTranscripts",
             "captionLanguage": {func: "fluid.videoPlayer.transformLanguageChange"},
             "transcriptLanguage": {func: "fluid.videoPlayer.transformLanguageChange"}
+*/
+// XXX maybe shouldn't hard-code these keys? check with Cindy, she seems to think we shouldn't
+            "fluid_videoPlayer_captions": "displayCaptions",
+            "fluid_videoPlayer_transcripts": "displayTranscripts",
+            "fluid_videoPlayer_captionLanguage": {func: "fluid.videoPlayer.transformLanguageChange"},
+            "fluid_videoPlayer_transcriptLanguage": {func: "fluid.videoPlayer.transformLanguageChange"}
         }
     });
     
