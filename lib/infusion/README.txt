@@ -1,4 +1,4 @@
-MyInfusion was built from an unreleased version of Infusion branch https://github.com/jobara/infusion/tree/FLUID-4907, commit=3999bdef2983bda47f0a59026dab4eb7ae16e680 using the following command:
+MyInfusion was built from an unreleased version of the Infusion master branch, commit=3223079c74ad3a2a20551def3f5a1880c42b98bc using the following command:
 
 Build the minified Infusion:
 ant customBuild -Dinclude="enhancement, uiOptions, progress, tooltip, jQueryScrollToPlugin" -lib lib/rhino

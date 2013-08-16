@@ -22,7 +22,6 @@
 
         <!-- Fluid and jQuery Dependencies -->
         <script type="text/javascript" src="../lib/infusion/MyInfusion.js"></script>
-        <script type="text/javascript" src="../js/MediaSettings.js"></script>
         <!-- Utils -->
         <script type="text/javascript" src="../lib/jquery-ui/js/jquery.ui.button.js"></script>
         <script type="text/javascript" src="../lib/captionator/js/captionator.js"></script>
@@ -32,6 +31,7 @@
         <![endif]-->
         <!-- VideoPlayer dependencies -->
         <script type="text/javascript" src="../js/VideoPlayer_framework.js"></script>
+        <script type="text/javascript" src="../js/MediaSettings.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer_showHide.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer.js"></script>
         <script type="text/javascript" src="../js/VideoPlayer_html5Captionator.js"></script>
@@ -48,11 +48,13 @@
         <script>
             fluid.globalSettingsStore();
             fluid.pageEnhancer({
-                gradeNames: ["fluid.uiEnhancer.starterEnactors"],
-                tocTemplate: "../lib/infusion/components/tableOfContents/html/TableOfContents.html",
-                classnameMap: {
-                    theme: {
-                        "default": null
+                uiEnhancer: {
+                    gradeNames: ["fluid.uiEnhancer.starterEnactors"],
+                    tocTemplate: "../lib/infusion/components/tableOfContents/html/TableOfContents.html",
+                    classnameMap: {
+                        theme: {
+                            "default": null
+                        }
                     }
                 }
             });
@@ -77,22 +79,23 @@
         <script>
             var uiOptions = fluid.uiOptions.fatPanel(".flc-uiOptions", {
                 gradeNames: ["fluid.uiOptions.transformDefaultPanelsOptions"], 
-                prefix: "../lib/infusion/components/uiOptions/html/",
+                templatePrefix: "../lib/infusion/components/uiOptions/html/",
+                messagePrefix: "../lib/infusion/components/uiOptions/messages/",
                 templateLoader: {
-                    options: {
-                        gradeNames: ["fluid.uiOptions.starterTemplateLoader"]
-                    }
+                    gradeNames: ["fluid.videoPlayer.mediaPanelTemplateLoader", "fluid.uiOptions.starterTemplateLoader"]
+                },
+                messageLoader: {
+                    gradeNames: ["fluid.uiOptions.starterMessageLoader", "fluid.videoPlayer.mediaPanelMessageLoader"]
                 },
                 uiOptions: {
-                    options: {
-                        gradeNames: ["fluid.uiOptions.starterPanels", "fluid.uiOptions.rootModel.starter", "fluid.uiOptions.uiEnhancerRelay"],
-                        members: {
-                            rootModel: {
-                                captions: false,
-                                captionLanguage: "en",
-                                transcripts: false,
-                                transcriptLanguage: "en"
-                            }
+                    gradeNames: ["fluid.uiOptions.starterPanels", "fluid.uiOptions.rootModel.starter", "fluid.uiOptions.uiEnhancerRelay"],
+                    members: {
+// XXX: The following settings are being ignored!!
+                        rootModel: {
+                            captions: false,
+                            captionLanguage: "en",
+                            transcripts: false,
+                            transcriptLanguage: "en"
                         }
                     }
                 }
@@ -115,8 +118,10 @@
                     ],
                     captions: [
                         {
-                            src: "http://www.youtube.com/watch?v=_VxQEPw1x9E&language=en",
-                            type: "text/amarajson",
+                            // src: "http://www.youtube.com/watch?v=_VxQEPw1x9E&language=en",
+                            // type: "text/amarajson",
+                            src: "videos/ReorganizeFuture/ReorganizeFuture.en.vtt",
+                            type: "text/vtt",
                             srclang: "en",
                             label: "English"
                         },
@@ -131,11 +136,11 @@
                         {
                             // TO TEST the transcript processing of Universal Subtitles files for transcripts,
                             // substititute the following two lines
-                            src: "http://www.youtube.com/watch?v=_VxQEPw1x9E&language=en",
-                            type: "text/amarajson",
+                            // src: "http://www.youtube.com/watch?v=_VxQEPw1x9E&language=en",
+                            // type: "text/amarajson",
 
-                            //src: "videos/ReorganizeFuture/ReorganizeFuture.transcripts.en.json",
-                            //type: "JSONcc",
+                            src: "videos/ReorganizeFuture/ReorganizeFuture.transcripts.en.json",
+                            type: "JSONcc",
                             srclang: "en",
                             label: "English"
                         },

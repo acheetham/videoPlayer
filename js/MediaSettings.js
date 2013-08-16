@@ -131,10 +131,28 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.defaults("fluid.videoPlayer.mediaPanels", {
         gradeNames: ["fluid.uiOptions", "autoInit"],
         selectors: {
+            test: ".flc-uiOptions-test",
             captionsSettings: ".flc-uiOptions-captions-settings",
             transcriptsSettings: ".flc-uiOptions-transcripts-settings"
         },
         components: {
+            test: {
+                type: "fluid.videoPlayer.panels.test",
+                createOnEvent: "onUIOptionsMarkupReady",
+                container: "{uiOptions}.dom.test",
+                createOnEvent: "onUIOptionsMarkupReady",
+                options: {
+                    gradeNames: "fluid.uiOptions.defaultPanel",
+                    rules: {
+                        "selections.test": "value"
+                    },
+                    model: {
+                        test: "{fluid.uiOptions.rootModel}.rootModel.test"
+                    },
+                    resources: {
+                        template: "{templateLoader}.resources.test"
+                    }
+                }            },
             captionsSettings: {
                 type: "fluid.emptyEventedSubcomponent",
                 createOnEvent: "onUIOptionsMarkupReady"
@@ -214,6 +232,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         templates: {
             // XXX Still need to handle no-native-video case; demands block not working
             uiOptions: "../html/FatPanelUIOptions.html",
+            test: "../html/TestTemplate.html",
             captionsSettings: "../html/MediaPanelTemplate.html",
             transcriptsSettings: "../html/MediaPanelTemplate.html"
         }
@@ -269,4 +288,64 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             transcriptSettings: "../messages/transcripts.json",
         }
     });
+
+//=================
+// Experimenting
+
+    fluid.defaults("fluid.videoPlayer.panels.test", {
+        gradeNames: ["fluid.uiOptions.panels", "autoInit"],
+        model: {
+            value: "1"
+        },
+        strings: {
+            size: ["1", "2", "3", "4", "5"]
+        },
+        controlValues: {
+            size: ["1", "2", "3", "4", "5"]
+        },
+        styles: {
+            icon: "fl-icon"
+        },
+        selectors: {
+            sizeSlider: ".flc-uiOptions-sizeSlider",
+            sizeDropdown: ".flc-uiOptions-sizeDropdown",
+        },
+        range: {
+            min: 1,
+            max: 5
+        },
+        sliderOptions: {
+            orientation: "horizontal",
+            step: 1.0
+        },
+        produceTree: "fluid.videoPlayer.panels.test.produceTree"
+    });
+    fluid.videoPlayer.panels.test.produceTree = function (that) {
+        var sliderOptions = $.extend(true, {}, that.options.sliderOptions, that.model, that.options.range);
+        sliderOptions.slide = function (event, ui) {
+            that.applier.requestChange("value", ui.value.toString());
+        };
+        var tree = {
+            sizeSlider: {
+                decorators: {
+                    type: "jQuery",
+                    func: "slider",
+                    args: [sliderOptions]
+                }
+            },
+            sizeDropdown: {
+                optionnames: "${{that}.options.strings.size}",
+                optionlist: "${{that}.options.controlValues.size}",
+                selection: "${value}"
+            }
+        };
+        return tree;
+    };
+    fluid.videoPlayer.panels.test.finalInit = function (that) {
+        // the framework does not yet have a declarative way to attach listeners to the modelChanged event
+        that.applier.modelChanged.addListener("value", function (newModel, oldModel, request) {
+            that.refreshView();
+        });
+    };
+
 })(jQuery);
